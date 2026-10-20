@@ -1,4 +1,4 @@
-name: Build PLMS Local Database Desktop
+name: Build Medicsoft PLMS
 
 on:
   workflow_dispatch:
@@ -24,6 +24,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+
+      - name: Verify installer artwork, callbacks and layout
+        shell: pwsh
+        run: |
+          python tests/verify_installer.py
+          if ($LASTEXITCODE -ne 0) { throw "Installer source verification failed." }
 
       - name: Verify frontend workflows and desktop integration
         shell: pwsh
@@ -82,9 +88,9 @@ jobs:
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
-          name: PLMS-Desktop-0.2.6-Windows-Installer
+          name: Medicsoft-PLMS-1.0.0-Windows-Installer
           path: |
             src-tauri/target/release/bundle/nsis/*.exe
             src-tauri/target/release/bundle/nsis/*.exe.sha256
           if-no-files-found: error
-          retention-days: 3
+          retention-days: 30
