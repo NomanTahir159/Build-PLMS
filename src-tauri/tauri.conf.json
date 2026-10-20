@@ -1,0 +1,81 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Medicsoft PLMS",
+  "version": "1.0.0",
+  "identifier": "pk.org.sgrh.plms",
+  "build": {
+    "frontendDist": "../src",
+    "beforeBuildCommand": "python backend/build_resources.py"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Medicsoft PLMS",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 900,
+        "minHeight": 600,
+        "resizable": true,
+        "maximized": true,
+        "fullscreen": false,
+        "center": true,
+        "visible": false,
+        "backgroundColor": "#f3f6fb",
+        "url": "System/index.html",
+        "create": false,
+        "decorations": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self' asset: http://asset.localhost; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src ipc: http://ipc.localhost; frame-src 'self' blob:; object-src 'none'; base-uri 'none'",
+      "dangerousDisableAssetCspModification": [
+        "script-src",
+        "style-src"
+      ]
+    },
+    "withGlobalTauri": true
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "nsis"
+    ],
+    "category": "Business",
+    "shortDescription": "Pathology Lab Management System with a local database",
+    "longDescription": "Offline desktop beta of the Pathology Lab Management System.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico",
+      "icons/icon.png"
+    ],
+    "windows": {
+      "webviewInstallMode": {
+        "type": "offlineInstaller",
+        "silent": true
+      },
+      "nsis": {
+        "installerIcon": "icons/icon.ico",
+        "uninstallerIcon": "icons/icon.ico",
+        "template": "installer/installer.nsi",
+        "sidebarImage": "installer/sidebar.bmp",
+        "languages": [
+          "English"
+        ],
+        "displayLanguageSelector": false,
+        "installMode": "perMachine"
+      }
+    },
+    "resources": {
+      "../backend/dist/plms-backend.exe": "Root/plms-backend.exe",
+      "../src/System/": "System/",
+      "../src/Resources/": "Resources/",
+      "../src/Catalog/": "Catalog/",
+      "../src/Presets/": "Presets/"
+    },
+    "publisher": "Medicsoft Corporation",
+    "copyright": "Copyright \u00a9 2026 Medicsoft Corporation"
+  }
+}

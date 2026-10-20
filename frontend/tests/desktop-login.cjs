@@ -1,0 +1,22 @@
+const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert/strict');
+const root=path.resolve(__dirname,'../..'),html=fs.readFileSync(path.join(root,'src/System/index.html'),'utf8'),native=fs.readFileSync(path.join(root,'src/System/native-backend.js'),'utf8');
+async function testSave(){
+ const events=[],controls={uUserId:{value:'U001'},uPassword:{value:''},uBypassLogin:{checked:true}};let resolveCommit,rejectCommit;
+ const commit=new Promise((resolve,reject)=>{resolveCommit=resolve;rejectCommit=reject});
+ const c={window:{plmsNativeAuth:{flush:()=>commit},refreshPermissionUI(){}},document:{getElementById:id=>controls[id]},state:{users:[{id:'U001',name:'Noman Tahir',role:'Administrator'}]},plmsSavingUser:false,editUserId:'U001',requirePermission:()=>true,hasPermission:()=>true,plmsCredentials:{ready:Promise.resolve()},canEditExistingUserId:()=>true,plmsProcessingBypassAccountValue:()=>false,persist(){events.push('persist')},closeModal(){events.push('close')},renderUsers(){},toast(message){events.push(message)},uName:{value:'Noman Tahir'},uRole:{value:'Administrator'},uDept:{value:'All'},uPerm:{value:'Full Access'},uStatus:{value:'Active'},sessionStorage:{getItem:()=>null}};
+ vm.createContext(c);const a=html.indexOf('async function saveUser(){'),b=html.indexOf('\nfunction deleteUser(',a);vm.runInContext(html.slice(a,b),c);
+ const save=c.saveUser();await new Promise(setImmediate);assert.equal(c.state.users[0].bypassLogin,true);assert(!events.includes('close'));assert(!events.includes('User updated.'));resolveCommit();await save;assert(events.includes('User updated.'));
+ // A failed database commit leaves the dialog open and reports the error.
+ const errorEvents=[];c.toast=m=>errorEvents.push(m);c.closeModal=()=>errorEvents.push('close');c.window.plmsNativeAuth.flush=()=>Promise.reject(Error('Database rejected update'));await c.saveUser();assert.deepEqual(errorEvents,['Database rejected update']);
+}
+async function testStartup(enabled){
+ class Storage{constructor(){this.items={}}getItem(k){return this.items[k]??null}setItem(k,v){this.items[k]=String(v)}removeItem(k){delete this.items[k]}}
+ const actions=[],listeners={},classes=new Set(),header={textContent:''};const state={users:[],patients:[],orders:[],results:{}};
+ const response={token:'native-test-token',revision:1,userId:'U001',state:{users:[{id:'U001',name:'Noman Tahir',role:'Administrator',bypassLogin:true}],patients:[],orders:[],results:{}}};
+ const database={transaction(){return {objectStore(){return {getAll(){const request={result:[]};queueMicrotask(()=>request.onsuccess());return request}}}}},close(){}};
+ const c={Storage,localStorage:new Storage(),sessionStorage:new Storage(),state,console,Promise,Date,JSON,Error,setTimeout,setInterval:()=>0,queueMicrotask,indexedDB:{open(){const request={result:database};queueMicrotask(()=>request.onsuccess());return request}},navigate:()=>actions.push('navigate'),plmsCredentials:{},plmsReliability:{flush:async()=>{},getAudit:async()=>[],prepareRestore:async()=>{}},document:{documentElement:{classList:{add:x=>classes.add(x),remove:x=>classes.delete(x)}},getElementById:()=>null,querySelector:()=>header,querySelectorAll:()=>[],addEventListener:(name,handler)=>listeners[name]=handler},window:{addEventListener(){},refreshPermissionUI(){},renderAll(){},applyTheme(){},toast(){},__TAURI__:{core:{invoke:async(command,{request})=>{actions.push(request.action);return {ok:true,data:request.action==='status'?{initialized:true}:request.action==='bypass_login'?(enabled?response:null):{}}}}}}};
+ vm.createContext(c);vm.runInContext(native,c);assert(classes.has('plms-native-startup-pending'));await listeners.DOMContentLoaded();await c.window.plmsNativeAuth.startup;
+ assert(!classes.has('plms-native-startup-pending'));assert.equal(c.window.plmsNativeAuth.authenticated,enabled);assert.equal(actions.filter(x=>x==='bypass_login').length,1);
+ if(enabled){assert.equal(c.sessionStorage.getItem('PLMS_LOGIN_USER'),'U001');await c.window.plmsNativeAuth.logout();assert.equal(c.window.plmsNativeAuth.authenticated,false);assert.equal(actions.filter(x=>x==='bypass_login').length,1)}
+}
+(async()=>{await testSave();await testStartup(true);await testStartup(false);console.log('Native login: setting retained, success waits for database, rejected save reports failure, enabled/disabled startup, explicit logout and reveal readiness passed.');})().catch(e=>{console.error(e);process.exitCode=1});

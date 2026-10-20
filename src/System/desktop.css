@@ -1,0 +1,16 @@
+/* The existing PLMS header is the native title bar; action styling stays shared. */
+html body .app{width:100%!important;height:100vh!important;margin:0!important;border-radius:0!important;}
+html body .header .brand,html body .header .header-spacer{cursor:default;user-select:none;}
+html body .plms-desktop-navigation,html body .plms-window-controls{display:flex;align-items:center;gap:4px;flex:0 0 auto;}
+html body .plms-desktop-navigation{margin-left:2px;padding-left:8px;border-left:1px solid var(--line);}
+html body .plms-desktop-navigation .head-btn{width:30px;min-width:30px;justify-content:center;padding:0;box-shadow:none!important;}
+html body .plms-desktop-navigation button:disabled{opacity:.35;cursor:default;}
+html body .plms-window-controls button{width:32px;height:30px;padding:0;border:0;border-radius:6px;background:transparent;color:var(--text);font-size:16px;display:grid;place-items:center;box-shadow:none;outline:none;}
+html body .plms-window-controls button:hover{background:var(--brand-soft);}
+html body .plms-window-controls [data-window-action=close]:hover{background:#c42b1c;color:#fff;}
+html body .plms-login-windowbar{position:fixed;top:0;left:0;right:0;height:36px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 14px;box-sizing:border-box;background:var(--bg);color:var(--text);z-index:10000;font-size:12px;}
+html body .plms-login-windowbar>span{flex:1;line-height:36px;user-select:none;}
+html.plms-authenticated body .plms-login-windowbar{display:none;}
+html.plms-auth-required body #plmsLoginScreen{padding-top:42px;box-sizing:border-box;}
+html.plms-native-startup-pending #plmsLoginScreen{visibility:hidden!important;}
+@media print{.plms-desktop-navigation,.plms-window-controls,.plms-login-windowbar{display:none!important;}}
