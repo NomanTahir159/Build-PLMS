@@ -57,15 +57,17 @@
         "silent": true
       },
       "nsis": {
-        "installerIcon": "icons/icon.ico",
-        "uninstallerIcon": "icons/icon.ico",
+        "installerIcon": "installer/medicsoft-installer.ico",
+        "uninstallerIcon": "installer/medicsoft-installer.ico",
         "template": "installer/installer.nsi",
         "sidebarImage": "installer/sidebar.bmp",
         "languages": [
           "English"
         ],
         "displayLanguageSelector": false,
-        "installMode": "perMachine"
+        "installMode": "perMachine",
+        "headerImage": "installer/header-light.bmp",
+        "uninstallerHeaderImage": "installer/header-light.bmp"
       }
     },
     "resources": {

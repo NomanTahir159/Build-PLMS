@@ -1,4 +1,5 @@
-; PLMS branding overlay on the official Tauri CLI v2.12.0 NSIS template.
+; Medicsoft installer artwork, consistent DPI layout and Windows app-theme support.
+; Based on the official Tauri CLI v2.12.0 NSIS template.
 ; Upstream: https://github.com/tauri-apps/tauri/tree/tauri-cli-v2.12.0
 Unicode true
 ManifestDPIAware true
@@ -134,6 +135,8 @@ VIAddVersionKey "ProductVersion" "${VERSION}"
 
 ; Medicsoft visual theme. Keep the native wizard, upgrade and data handling intact.
 !define MUI_FONT "Segoe UI"
+!define MUI_CUSTOMFUNCTION_GUIINIT PLMSGuiInit
+!define MUI_CUSTOMFUNCTION_UNGUIINIT un.PLMSGuiInit
 !define MUI_TEXTCOLOR "142337"
 !define MUI_BGCOLOR "FFFFFF"
 !define MUI_HEADERIMAGE_RIGHT
@@ -185,19 +188,20 @@ VIAddVersionKey "ProductVersion" "${VERSION}"
 ; 1. Welcome Page
 !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
 !define MUI_PAGE_CUSTOMFUNCTION_SHOW PLMSWelcomeLogo
-!define MUI_PAGE_CUSTOMFUNCTION_DESTROYED PLMSFreeLogo
 !insertmacro MUI_PAGE_WELCOME
 
 ; 2. License Page (if defined)
 !if "${LICENSE}" != ""
   !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
-  !insertmacro MUI_PAGE_LICENSE "${LICENSE}"
+  !define MUI_PAGE_CUSTOMFUNCTION_SHOW PLMSPageShow
+!insertmacro MUI_PAGE_LICENSE "${LICENSE}"
 !endif
 
 ; 3. Install mode (if it is set to `both`)
 !if "${INSTALLMODE}" == "both"
   !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
-  !insertmacro MULTIUSER_PAGE_INSTALLMODE
+  !define MUI_PAGE_CUSTOMFUNCTION_SHOW PLMSPageShow
+!insertmacro MULTIUSER_PAGE_INSTALLMODE
 !endif
 
 ; 4. Custom page to ask user if he wants to reinstall/uninstall
@@ -315,6 +319,7 @@ Function PageReinstall
     ${EndIf}
 
     ${NSD_SetFocus} $R2
+    Call PLMSPageShow
     nsDialogs::Show
   ${EndIf}
 FunctionEnd
@@ -407,6 +412,7 @@ FunctionEnd
 !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
 !define MUI_PAGE_HEADER_TEXT "Choose an installation folder"
 !define MUI_PAGE_HEADER_SUBTEXT "Select where PLMS will be installed."
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW PLMSPageShow
 !insertmacro MUI_PAGE_DIRECTORY
 
 ; 6. Start menu shortcut page
@@ -417,11 +423,13 @@ Var AppStartMenuFolder
 !else
   !define MUI_PAGE_CUSTOMFUNCTION_PRE Skip
 !endif
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW PLMSPageShow
 !insertmacro MUI_PAGE_STARTMENU Application $AppStartMenuFolder
 
 ; 7. Installation page
 !define MUI_PAGE_HEADER_TEXT "Installing PLMS"
 !define MUI_PAGE_HEADER_SUBTEXT "Setting up the application and its local database worker."
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW PLMSPageShow
 !insertmacro MUI_PAGE_INSTFILES
 
 ; 8. Finish page
@@ -438,45 +446,272 @@ Var AppStartMenuFolder
 !define MUI_FINISHPAGE_RUN_FUNCTION RunMainBinary
 !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
 !define MUI_PAGE_CUSTOMFUNCTION_SHOW PLMSFinishLogo
-!define MUI_PAGE_CUSTOMFUNCTION_DESTROYED PLMSFreeLogo
 !insertmacro MUI_PAGE_FINISH
 
- ; Native icons have square pixel dimensions and stay inside the sidebar control.
-Var PLMSLogoHandle
-Function PLMSWelcomeLogo
-  Push $mui.WelcomePage
-  Push $mui.WelcomePage.Image
-  Call PLMSDrawLogo
-FunctionEnd
-Function PLMSFinishLogo
-  Push $mui.FinishPage
-  Push $mui.FinishPage.Image
-  Call PLMSDrawLogo
-FunctionEnd
-Function PLMSDrawLogo
-  Pop $1
-  Pop $2
+; Shared installer / uninstaller appearance. No extra image windows are created.
+Var PLMSDark
+Var PLMSText
+Var PLMSBackground
+Var PLMSFieldBackground
+Var PLMSThemeName
+Var PLMSSidebarBitmap
+Var PLMSHeaderBitmap
+
+!searchreplace PLMS_SIDEBAR_DARK "${SIDEBARIMAGE}" "sidebar.bmp" "sidebar-dark.bmp"
+!searchreplace PLMS_HEADER_DARK "${HEADERIMAGE}" "header-light.bmp" "header-dark.bmp"
+
+!macro PLMS_WIZARD_FUNCTIONS PREFIX
+Function ${PREFIX}PLMSGuiInit
+  Push $0
+  StrCpy $0 $OUTDIR
   InitPluginsDir
-  StrCpy $9 $OUTDIR
   SetOutPath $PLUGINSDIR
-  File /oname=plms-logo.ico "${INSTALLERICON}"
-  SetOutPath $9
-  System::Call '*(i,i,i,i) p .r3'
-  System::Call 'user32::GetClientRect(p r1,p r3)'
-  System::Call '*$3(i,i,i .r4,i .r5)'
-  System::Free $3
-  IntOp $6 $4 / 2
-  IntOp $7 $4 / 4
-  IntOp $8 $5 / 7
-  System::Call 'user32::LoadImageW(p 0,w "$PLUGINSDIR\plms-logo.ico",i 1,i r6,i r6,i 0x10) p .r0'
-  StrCpy $PLMSLogoHandle $0
-  System::Call 'user32::CreateWindowExW(i 0,w "STATIC",w "",i 0x50000003,i r7,i r8,i r6,i r6,p r2,p 0,p 0,p 0) p .r1'
-  SendMessage $1 0x0170 $PLMSLogoHandle 0
-FunctionEnd
-Function PLMSFreeLogo
-  System::Call 'user32::DestroyIcon(p $PLMSLogoHandle)'
+  !if "${PREFIX}" == ""
+    File /oname=plms-sidebar-light.bmp "${SIDEBARIMAGE}"
+    File /oname=plms-sidebar-dark.bmp "${PLMS_SIDEBAR_DARK}"
+  !endif
+  File /oname=plms-header-light.bmp "${HEADERIMAGE}"
+  File /oname=plms-header-dark.bmp "${PLMS_HEADER_DARK}"
+  SetOutPath $0
+  Call ${PREFIX}PLMSPageShow
+  Pop $0
 FunctionEnd
 
+Function ${PREFIX}PLMSThemeTree
+  Exch $0
+  Push $1
+  Push $2
+  ; NSIS compiles color literals; runtime color variables are not supported here.
+  ${If} $PLMSDark == 1
+    SetCtlColors $0 F2F2F2 202020
+  ${Else}
+    SetCtlColors $0 202020 FFFFFF
+  ${EndIf}
+  System::Call 'user32::GetClassNameW(p r0,w .r2,i ${NSIS_MAX_STRLEN})'
+  ${If} $2 == "Edit"
+  ${OrIf} $2 == "RichEdit20W"
+  ${OrIf} $2 == "ListBox"
+  ${OrIf} $2 == "ComboBox"
+    ${If} $PLMSDark == 1
+      SetCtlColors $0 F2F2F2 2D2D2D
+    ${Else}
+      SetCtlColors $0 202020 FFFFFF
+    ${EndIf}
+  ${EndIf}
+  ${If} $2 == "SysListView32"
+    ; These neutral RGB colors have identical BGR/COLORREF representations.
+    SendMessage $0 0x1024 0 "0x$PLMSText"
+    SendMessage $0 0x1026 0 "0x$PLMSFieldBackground"
+    SendMessage $0 0x1001 0 "0x$PLMSFieldBackground"
+  ${EndIf}
+  ${If} $2 == "Button"
+  ${OrIf} $2 == "Edit"
+  ${OrIf} $2 == "ComboBox"
+  ${OrIf} $2 == "SysTreeView32"
+  ${OrIf} $2 == "SysListView32"
+    System::Call 'uxtheme::SetWindowTheme(p r0,w "$PLMSThemeName",p 0)'
+  ${EndIf}
+  System::Call 'user32::GetWindow(p r0,i 5)p.r1'
+  ${While} $1 != 0
+    Push $1
+    Call ${PREFIX}PLMSThemeTree
+    System::Call 'user32::GetWindow(p r1,i 2)p.r1'
+  ${EndWhile}
+  Pop $2
+  Pop $1
+  Pop $0
+FunctionEnd
+
+Function ${PREFIX}PLMSLayoutButtons
+  Push $0
+  Push $1
+  Push $2
+  Push $3
+  Push $4
+  Push $5
+  Push $6
+  Push $7
+  Push $8
+  Push $9
+  ; All geometry is in dialog units, converted with the actual wizard font/DPI.
+  ; Use the native MUI 14-DLU height, also used during page transitions.
+  System::Call '*(i 0,i 0,i 60,i 14)p.r0'
+  System::Call 'user32::MapDialogRect(p $HWNDPARENT,p r0)'
+  System::Call '*$0(i,i,i.r1,i.r2)'
+  System::Free $0
+  System::Call '*(i 0,i 0,i 8,i 12)p.r0'
+  System::Call 'user32::MapDialogRect(p $HWNDPARENT,p r0)'
+  System::Call '*$0(i,i,i.r3,i.r4)'
+  System::Free $0
+  System::Call '*(i,i,i,i)p.r0'
+  System::Call 'user32::GetClientRect(p $HWNDPARENT,p r0)'
+  System::Call '*$0(i,i,i.r5,i.r6)'
+  System::Free $0
+  ; Next/Install/Uninstall/Finish keeps the same slot as the page changes.
+  IntOp $9 $3 * 3
+  IntOp $9 $9 / 2
+  IntOp $7 $5 - $9
+  IntOp $7 $7 - $1
+  IntOp $8 $6 - $4
+  IntOp $8 $8 - $2
+  GetDlgItem $9 $HWNDPARENT 2
+  System::Call 'user32::SetWindowPos(p r9,p 0,i r7,i r8,i r1,i r2,i 0x14)'
+  IntOp $7 $7 - $3
+  IntOp $7 $7 - $1
+  GetDlgItem $9 $HWNDPARENT 1
+  System::Call 'user32::SetWindowPos(p r9,p 0,i r7,i r8,i r1,i r2,i 0x14)'
+  IntOp $7 $7 - $3
+  IntOp $7 $7 - $1
+  GetDlgItem $9 $HWNDPARENT 3
+  System::Call 'user32::SetWindowPos(p r9,p 0,i r7,i r8,i r1,i r2,i 0x14)'
+  Pop $9
+  Pop $8
+  Pop $7
+  Pop $6
+  Pop $5
+  Pop $4
+  Pop $3
+  Pop $2
+  Pop $1
+  Pop $0
+FunctionEnd
+
+; Replace the bitmap in the existing STATIC control, never draw a second logo.
+; Arguments: existing image-control HWND, theme-specific bitmap filename.
+!if "${PREFIX}" == ""
+Function ${PREFIX}PLMSSetSidebar
+  Pop $0
+  Pop $1
+  Push $2
+  Push $3
+  Push $4
+  Push $5
+  System::Call '*(i,i,i,i)p.r2'
+  System::Call 'user32::GetClientRect(p r1,p r2)'
+  System::Call '*$2(i,i,i.r3,i.r4)'
+  System::Free $2
+  System::Call 'user32::LoadImageW(p 0,w r0,i 0,i r3,i r4,i 0x2010)p.r5'
+  ${If} $5 != 0
+    SendMessage $1 0x0172 0 $5
+    ${If} $PLMSSidebarBitmap != 0
+      System::Call 'gdi32::DeleteObject(p $PLMSSidebarBitmap)'
+    ${EndIf}
+    StrCpy $PLMSSidebarBitmap $5
+  ${EndIf}
+  Pop $5
+  Pop $4
+  Pop $3
+  Pop $2
+FunctionEnd
+
+!endif
+
+Function ${PREFIX}PLMSPageShow
+  Push $0
+  Push $1
+  Push $2
+  Push $3
+  Push $4
+  Push $5
+  ; Read Windows app appearance when opening each page. Missing values use light.
+  StrCpy $PLMSDark 0
+  StrCpy $PLMSText "202020"
+  StrCpy $PLMSBackground "FFFFFF"
+  StrCpy $PLMSFieldBackground "FFFFFF"
+  StrCpy $PLMSThemeName "Explorer"
+  ClearErrors
+  ReadRegDWORD $0 HKCU "Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" "AppsUseLightTheme"
+  ${IfNot} ${Errors}
+  ${AndIf} $0 == 0
+    StrCpy $PLMSDark 1
+    StrCpy $PLMSText "F2F2F2"
+    StrCpy $PLMSBackground "202020"
+    StrCpy $PLMSFieldBackground "2D2D2D"
+    StrCpy $PLMSThemeName "DarkMode_Explorer"
+  ${EndIf}
+  System::Call 'dwmapi::DwmSetWindowAttribute(p $HWNDPARENT,i 20,*i $PLMSDark,i 4)i.r0'
+  ${If} $0 != 0
+    System::Call 'dwmapi::DwmSetWindowAttribute(p $HWNDPARENT,i 19,*i $PLMSDark,i 4)'
+  ${EndIf}
+  Push $HWNDPARENT
+  Call ${PREFIX}PLMSThemeTree
+  Call ${PREFIX}PLMSLayoutButtons
+  StrCpy $0 "$PLUGINSDIR\plms-header-light.bmp"
+  ${If} $PLMSDark == 1
+    StrCpy $0 "$PLUGINSDIR\plms-header-dark.bmp"
+  ${EndIf}
+  ${If} $mui.Header.Image != 0
+    System::Call '*(i,i,i,i)p.r1'
+    System::Call 'user32::GetClientRect(p $mui.Header.Image,p r1)'
+    System::Call '*$1(i,i,i.r2,i.r3)'
+    System::Free $1
+    System::Call 'user32::LoadImageW(p 0,w r0,i 0,i r2,i r3,i 0x2010)p.r4'
+    ${If} $4 != 0
+      SendMessage $mui.Header.Image 0x0172 0 $4
+      ${If} $PLMSHeaderBitmap != 0
+        System::Call 'gdi32::DeleteObject(p $PLMSHeaderBitmap)'
+      ${EndIf}
+      StrCpy $PLMSHeaderBitmap $4
+    ${EndIf}
+  ${EndIf}
+  System::Call 'user32::RedrawWindow(p $HWNDPARENT,p 0,p 0,i 0x185)'
+  Pop $5
+  Pop $4
+  Pop $3
+  Pop $2
+  Pop $1
+  Pop $0
+FunctionEnd
+
+Function ${PREFIX}PLMSFreeArtwork
+  ${If} $PLMSSidebarBitmap != 0
+    System::Call 'gdi32::DeleteObject(p $PLMSSidebarBitmap)'
+    StrCpy $PLMSSidebarBitmap 0
+  ${EndIf}
+  ${If} $PLMSHeaderBitmap != 0
+    System::Call 'gdi32::DeleteObject(p $PLMSHeaderBitmap)'
+    StrCpy $PLMSHeaderBitmap 0
+  ${EndIf}
+FunctionEnd
+!macroend
+
+!insertmacro PLMS_WIZARD_FUNCTIONS ""
+!insertmacro PLMS_WIZARD_FUNCTIONS "un."
+
+Function PLMSWelcomeLogo
+  Push $0
+  Push $1
+  Call PLMSPageShow
+  Push $mui.WelcomePage.Image
+  ${If} $PLMSDark == 1
+    Push "$PLUGINSDIR\plms-sidebar-dark.bmp"
+  ${Else}
+    Push "$PLUGINSDIR\plms-sidebar-light.bmp"
+  ${EndIf}
+  Call PLMSSetSidebar
+  Pop $1
+  Pop $0
+FunctionEnd
+Function PLMSFinishLogo
+  Push $0
+  Push $1
+  Call PLMSPageShow
+  Push $mui.FinishPage.Image
+  ${If} $PLMSDark == 1
+    Push "$PLUGINSDIR\plms-sidebar-dark.bmp"
+  ${Else}
+    Push "$PLUGINSDIR\plms-sidebar-light.bmp"
+  ${EndIf}
+  Call PLMSSetSidebar
+  Pop $1
+  Pop $0
+FunctionEnd
+Function .onGUIEnd
+  Call PLMSFreeArtwork
+FunctionEnd
+Function un.onGUIEnd
+  Call un.PLMSFreeArtwork
+FunctionEnd
 
 
 Function RunMainBinary
@@ -517,6 +752,7 @@ Function un.ConfirmShow ; Add add a `Delete app data` check box
   Pop $DeleteAppDataCheckbox
   SendMessage $HWNDPARENT ${WM_GETFONT} 0 0 $1
   SendMessage $DeleteAppDataCheckbox ${WM_SETFONT} $1 1
+  Call un.PLMSPageShow
 FunctionEnd
 !define MUI_PAGE_CUSTOMFUNCTION_LEAVE un.ConfirmLeave
 Function un.ConfirmLeave
@@ -531,6 +767,7 @@ FunctionEnd
 ; 2. Uninstalling Page
 !define MUI_PAGE_HEADER_TEXT "Removing PLMS"
 !define MUI_PAGE_HEADER_SUBTEXT "Removing the application files and shortcuts."
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW un.PLMSPageShow
 !insertmacro MUI_UNPAGE_INSTFILES
 
 ;Languages

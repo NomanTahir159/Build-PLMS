@@ -29,3 +29,25 @@ class StorageLayoutTests(unittest.TestCase):
   st=self.call('read');data=st['state'];data['reportVersions']={'1':[{'number':1,'html':'<p>Approved</p>'}]}
   st=self.call('commit',state=data,revision=st['revision']);data=st['state'];data['orders']=[o for o in data['orders'] if o['lab']!='1'];data['results'].pop('1',None);data['reportVersions'].pop('1',None)
   st=self.call('commit',state=data,revision=st['revision']);self.assertNotIn('1',st['state']['reportVersions'])
+ def test_delete_snapshot_removes_only_the_owned_backup_and_survives_restart(self):
+  row=self.call('snapshot_create',reason='On demand')['row'];path=self.root/'Backup'/('PLMS-'+row['id']+'.json')
+  other=self.call('snapshot_create',reason='On demand')['row'];other_path=self.root/'Backup'/('PLMS-'+other['id']+'.json')
+  unrelated=self.root/'Backup'/'notes.json';unrelated.write_text('keep')
+  self.assertTrue(path.exists());self.call('snapshot_delete',id=row['id'])
+  self.assertFalse(path.exists());self.assertTrue(other_path.exists());self.assertEqual(unrelated.read_text(),'keep')
+  self.assertNotIn(row['id'],[r['id'] for r in self.call('snapshots')['rows']])
+  self.api.db.close();self.api=Backend(self.root/'Database'/'plms.sqlite3')
+  self.assertIsNone(self.api.db.execute('SELECT id FROM snapshots WHERE id=?',(row['id'],)).fetchone())
+ def test_snapshot_delete_rejects_invalid_or_stale_identifiers(self):
+  from server import ApiError
+  for ident in ['../notes','missing-snapshot']:
+   with self.assertRaises(ApiError):self.call('snapshot_delete',id=ident)
+  self.assertFalse(self.api.db.in_transaction)
+ def test_snapshot_delete_requires_permission(self):
+  from server import ApiError
+  row=self.call('snapshot_create',reason='On demand')['row'];st=self.call('read')
+  st['state']['users'].append({'id':'snapshot-viewer','name':'Snapshot Viewer','role':'Viewer','status':'Active','department':'All','__nativePassword':'Snapshot test password 123'})
+  self.call('commit',state=st['state'],revision=st['revision'])
+  viewer=self.api.handle({'action':'login','username':'snapshot-viewer','password':'Snapshot test password 123'})
+  with self.assertRaises(ApiError):self.api.handle({'action':'snapshot_delete','token':viewer['token'],'id':row['id']})
+  self.assertIsNotNone(self.api.db.execute('SELECT id FROM snapshots WHERE id=?',(row['id'],)).fetchone())

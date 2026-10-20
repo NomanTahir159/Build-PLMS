@@ -656,7 +656,7 @@ class Backend:
         try:return self.dispatch(r)
         except ApiError:
             action=r.get('action','Unknown') if isinstance(r,dict) else 'Unknown'
-            if action not in ('login','commit','restore','password','read','audit','backup','bootstrap','bypass_login','logout','ping','status'):action='Unknown'
+            if action not in ('login','commit','restore','password','read','audit','backup','bootstrap','bypass_login','logout','ping','status','snapshot_delete'):action='Unknown'
             session=self.sessions.get(r.get('token')) if isinstance(r,dict) else None
             self.audit(session['id'] if session else 'Unauthenticated','Denied '+action)
             raise
@@ -697,6 +697,18 @@ class Backend:
             self.require(u,s,'backups.export','backups.restore');row=self.db.execute('SELECT id,time,reason,bytes,payload FROM snapshots WHERE id=?',(str(r.get('id','')),)).fetchone()
             if not row:raise ApiError('Snapshot not found.')
             return {'row':dict(zip(('id','time','reason','bytes','payload'),(*row[:4],json.loads(row[4]))))}
+        if action=='snapshot_delete':
+            self.require(u,s,'backups.manage')
+            ident=str(r.get('id',''))
+            if not re.fullmatch(r'[a-zA-Z0-9-]{1,100}',ident):raise ApiError('Invalid snapshot identifier.')
+            self.db.execute('BEGIN IMMEDIATE')
+            try:
+                if not self.db.execute('SELECT 1 FROM snapshots WHERE id=?',(ident,)).fetchone():raise ApiError('Snapshot not found.')
+                self.db.execute('DELETE FROM snapshots WHERE id=?',(ident,))
+                self.audit(u['id'],'Recovery snapshot deleted')
+                self.db.execute('COMMIT')
+            except Exception:self.db.execute('ROLLBACK');raise
+            return {'ok':True}
         if action=='snapshot_import':
             self.require(u,s,'backups.manage');self.require(u,s,'backups.restore')
             self.db.execute('BEGIN IMMEDIATE')

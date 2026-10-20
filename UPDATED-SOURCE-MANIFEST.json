@@ -1,0 +1,10 @@
+{
+  "baseline": "Medicsoft-PLMS-1.0.0-Installer-Rendering-Fixed-Package(1).zip",
+  "updated_html": "PLMS-Optimized(1).html",
+  "test_count": 234,
+  "profile_count": 15,
+  "employee_count": 61,
+  "trainee_count": 9,
+  "catalog_sha256": "433c40330e8c184e27eabcc50c92b9fac27836c557253cca1cf94ecda7b926f0",
+  "notes": "Existing SQLite data retained on upgrades; new seeds applied only on fresh bootstrap."
+}

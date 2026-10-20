@@ -1,10 +1,12 @@
-# Validation
+# Package validation
 
-Preparation checks passed:
+The package uses the latest `PLMS-Refresh-Modal-Corners-Fixed.html` as its frontend source, with the native login, SQLite, Word and desktop-window integrations applied. Catalog data is identical to the embedded catalog: 265 unique tests and 22 profiles. Only U001 / Noman Tahir / 123 is seeded on a fresh installation.
 
-- 64 existing backend security, authentication, session, restore, workflow and resource-build tests.
-- Four new backend checks: persisted catalog projection and restart; real backup files with unrelated-file preservation; repeat orders using stable patient IDs and direct test codes; Administrator deletion of an order's report archive.
-- All frontend test suites, including native login, navigation history, flush-before-close, sample transitions, result completeness, date chronology and processing bypass.
-- Executable script syntax, offline asset paths, exact catalog preservation, removed Catalog controls and installer resource configuration.
+Passed locally:
 
-No compiled Windows installer is included. GitHub Actions compiles the Rust host and Python worker, builds the NSIS installer, generates a SHA-256 checksum and uploads the installer artifact. On Windows, verify normal-user first launch, upgrade of an existing installation, printing, title-bar dragging/window controls and both themes before production use.
+- All frontend workflow suites: authentication, bypass settings, navigation, flush-before-close, sample transitions, result submission/approval, chronology, patient dates and session limits.
+- All 71 backend tests, including native snapshot deletion tests for: database/file deletion, restart persistence, rejected invalid/stale IDs and unauthorized deletion.
+- Eight installer source/artwork checks, including geometry at multiple scaling factors, callback coverage, matching image resources, and rejection of runtime color variables in SetCtlColors.
+- Source script syntax, offline font assets, catalog preservation, installer resource paths and ZIP integrity.
+
+This is a GitHub build source package, not a compiled Windows executable. GitHub Actions builds the Python worker, Rust host and NSIS installer and supplies the setup EXE with a SHA-256 checksum. Actual Windows compilation, installer/uninstaller execution, light/dark rendering, printing and DPI visual inspection were not available in this Linux preparation environment. The app is not code-signed.

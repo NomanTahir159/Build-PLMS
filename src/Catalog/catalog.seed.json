@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-10-integrated-catalog",
+  "version": "plms-export-2026-10-20T21:18:29.287Z",
   "catalog": [
     {
       "code": "CBC01",
@@ -817,7 +817,7 @@
     },
     {
       "code": "COG01",
-      "name": "Prothrombin Time (PT)",
+      "name": "PT",
       "department": "Hematology",
       "profile": "Coagulation Profile",
       "unit": "sec.",
@@ -840,7 +840,7 @@
         "auto": true,
         "allowManualOverride": false
       },
-      "updatedAt": "2026-10-13T14:34:22.109Z",
+      "updatedAt": "2026-10-20T20:38:08.340Z",
       "createdAt": "2026-10-11T01:04:25.294Z",
       "catalogIdentity": "test-mv3zqvwu-1b35wvrgidn",
       "clinicalReferenceRules": []
@@ -1367,7 +1367,7 @@
     },
     {
       "code": "M003",
-      "name": "Stool Culture",
+      "name": "Stool Culture & Sensitivity",
       "department": "Microbiology",
       "profile": "",
       "unit": "",
@@ -1377,7 +1377,20 @@
       "profiles": [],
       "referenceType": "Range Value",
       "catalogIdentity": "test-mv3zqvwu-5ewb9jxkh3h",
-      "updatedAt": "2026-10-11T15:41:42.031Z"
+      "updatedAt": "2026-10-20T18:50:12.791Z",
+      "cutOff": "",
+      "qualitativeReference": "",
+      "referenceRules": [],
+      "resultValueRules": [],
+      "clinicalReferenceRules": [],
+      "calculationRule": {
+        "type": "None",
+        "formula": "",
+        "decimals": 2,
+        "rounding": "Standard",
+        "auto": true,
+        "allowManualOverride": false
+      }
     },
     {
       "code": "P001",
@@ -1534,10 +1547,10 @@
       "name": "Urea",
       "unit": "mg/dl",
       "range": "17 - 43",
-      "profile": "Renal Profile",
+      "profile": "Renal Profile (RFTs)",
       "department": "Routine Chemistry",
       "profiles": [
-        "Renal Profile"
+        "Renal Profile (RFTs)"
       ],
       "price": 0,
       "active": true,
@@ -1555,7 +1568,7 @@
         "auto": true,
         "allowManualOverride": false
       },
-      "updatedAt": "2026-10-13T10:54:22.240Z",
+      "updatedAt": "2026-10-20T18:46:00.130Z",
       "createdAt": "2026-10-13T09:58:53.470Z",
       "clinicalReferenceRules": []
     },
@@ -1564,10 +1577,10 @@
       "name": "Creatinine",
       "unit": "mg/dl",
       "range": "0.6 - 1.3",
-      "profile": "Renal Profile",
+      "profile": "Renal Profile (RFTs)",
       "department": "Routine Chemistry",
       "profiles": [
-        "Renal Profile"
+        "Renal Profile (RFTs)"
       ],
       "price": 0,
       "active": true,
@@ -1584,7 +1597,7 @@
         "auto": true,
         "allowManualOverride": false
       },
-      "updatedAt": "2026-10-13T10:54:30.279Z",
+      "updatedAt": "2026-10-20T18:46:00.130Z",
       "catalogIdentity": "test-mv3zqv22-iiqaswcue2r",
       "createdAt": "2026-10-13T09:59:05.860Z",
       "clinicalReferenceRules": []
@@ -1594,10 +1607,10 @@
       "name": "BUN",
       "unit": "",
       "range": "8 - 20",
-      "profile": "Renal Profile",
+      "profile": "Renal Profile (RFTs)",
       "department": "Routine Chemistry",
       "profiles": [
-        "Renal Profile"
+        "Renal Profile (RFTs)"
       ],
       "price": 0,
       "active": true,
@@ -1614,7 +1627,7 @@
         "auto": true,
         "allowManualOverride": false
       },
-      "updatedAt": "2026-10-13T10:54:36.639Z",
+      "updatedAt": "2026-10-20T18:46:00.130Z",
       "catalogIdentity": "test-mv3zqv22-wxqg8phuny",
       "createdAt": "2026-10-13T09:59:19.204Z",
       "clinicalReferenceRules": []
@@ -1624,16 +1637,16 @@
       "name": "eGFR",
       "unit": "mL/min/1.73 m²",
       "range": "≥ 60",
-      "profile": "Renal Profile",
+      "profile": "Renal Profile (RFTs)",
       "department": "Routine Chemistry",
       "profiles": [
-        "Renal Profile"
+        "Renal Profile (RFTs)"
       ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
       "catalogIdentity": "test-mv3zqvwu-aoknp99wqek",
-      "updatedAt": "2026-10-13T10:55:02.665Z",
+      "updatedAt": "2026-10-20T18:46:00.130Z",
       "cutOff": "",
       "qualitativeReference": "",
       "referenceRules": [],
@@ -1653,15 +1666,15 @@
       "code": "LFT01",
       "name": "Total Bilirubin",
       "department": "Routine Chemistry",
-      "profile": "Liver Profile",
+      "profile": "Liver Profile (LFTs)",
       "unit": "mg/dL",
       "range": "0.3 - 1.2",
       "price": 0,
       "active": true,
       "profiles": [
-        "Liver Profile"
+        "Liver Profile (LFTs)"
       ],
-      "updatedAt": "2026-10-13T10:44:33.402Z",
+      "updatedAt": "2026-10-20T18:45:35.521Z",
       "referenceType": "Range Value",
       "catalogIdentity": "test-mv3zqvwu-r876iy2gtuh",
       "cutOff": "",
@@ -1682,15 +1695,15 @@
       "code": "LFT02",
       "name": "Direct Bilirubin",
       "unit": "mg/dl",
-      "range": "Upto 0.2",
-      "profile": "Liver Profile",
+      "range": "0.1 - 0.3",
+      "profile": "Liver Profile (LFTs)",
       "department": "Routine Chemistry",
       "profiles": [
-        "Liver Profile"
+        "Liver Profile (LFTs)"
       ],
       "price": 0,
       "active": true,
-      "updatedAt": "2026-10-13T10:44:33.402Z",
+      "updatedAt": "2026-10-20T19:18:27.868Z",
       "referenceType": "Range Value",
       "catalogIdentity": "test-mv3zqv8e-xalixpe5y3f",
       "cutOff": "",
@@ -1705,21 +1718,22 @@
         "auto": true,
         "allowManualOverride": false
       },
-      "createdAt": "2026-10-13T10:00:45.726Z"
+      "createdAt": "2026-10-13T10:00:45.726Z",
+      "clinicalReferenceRules": []
     },
     {
       "code": "LFT03",
       "name": "Indirect Bilirubin",
       "unit": "mg/dl",
-      "range": "Upto 0.8",
-      "profile": "Liver Profile",
+      "range": "0.3 - 0.8",
+      "profile": "Liver Profile (LFTs)",
       "department": "Routine Chemistry",
       "profiles": [
-        "Liver Profile"
+        "Liver Profile (LFTs)"
       ],
       "price": 0,
       "active": true,
-      "updatedAt": "2026-10-13T10:44:33.402Z",
+      "updatedAt": "2026-10-20T19:18:54.511Z",
       "referenceType": "Range Value",
       "catalogIdentity": "test-mv3zqvwu-iii2y7ty9tq",
       "cutOff": "",
@@ -1734,17 +1748,18 @@
         "auto": true,
         "allowManualOverride": false
       },
-      "createdAt": "2026-10-13T10:00:58.398Z"
+      "createdAt": "2026-10-13T10:00:58.398Z",
+      "clinicalReferenceRules": []
     },
     {
       "code": "LFT04",
       "name": "SGPT (ALT)",
       "unit": "U/l",
       "range": "",
-      "profile": "Liver Profile",
+      "profile": "Liver Profile (LFTs)",
       "department": "Routine Chemistry",
       "profiles": [
-        "Liver Profile"
+        "Liver Profile (LFTs)"
       ],
       "price": 0,
       "active": true,
@@ -1776,7 +1791,7 @@
       ],
       "referenceType": "Range Value",
       "catalogIdentity": "test-mv3zqvwu-jtb1cy5iy1l",
-      "updatedAt": "2026-10-13T10:44:33.402Z",
+      "updatedAt": "2026-10-20T18:45:35.521Z",
       "cutOff": "",
       "qualitativeReference": "",
       "resultValueRules": [],
@@ -1795,10 +1810,10 @@
       "name": "SGOT (AST)",
       "unit": "U/l",
       "range": "",
-      "profile": "Liver Profile",
+      "profile": "Liver Profile (LFTs)",
       "department": "Routine Chemistry",
       "profiles": [
-        "Liver Profile"
+        "Liver Profile (LFTs)"
       ],
       "price": 0,
       "active": true,
@@ -1830,7 +1845,7 @@
       ],
       "referenceType": "Range Value",
       "catalogIdentity": "test-mv3zqvwu-k3bt58hlv07",
-      "updatedAt": "2026-10-13T14:41:35.322Z",
+      "updatedAt": "2026-10-20T18:45:35.521Z",
       "cutOff": "",
       "qualitativeReference": "",
       "resultValueRules": [],
@@ -1849,16 +1864,16 @@
       "name": "Alkaline Phosphatase",
       "unit": "U/l",
       "range": "30 - 120",
-      "profile": "Liver Profile",
+      "profile": "Liver Profile (LFTs)",
       "department": "Routine Chemistry",
       "profiles": [
-        "Liver Profile"
+        "Liver Profile (LFTs)"
       ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
       "catalogIdentity": "test-mv3zqvwu-i59gm0f8ae",
-      "updatedAt": "2026-10-13T10:44:33.402Z",
+      "updatedAt": "2026-10-20T18:45:35.521Z",
       "cutOff": "",
       "qualitativeReference": "",
       "referenceRules": [],
@@ -1877,17 +1892,17 @@
       "code": "LFT07",
       "name": "Total Protein",
       "department": "Routine Chemistry",
-      "profile": "Liver Profile",
+      "profile": "Liver Profile (LFTs)",
       "unit": "g/dL",
       "range": "6.0 - 8.3",
       "price": 0,
       "active": true,
       "profiles": [
-        "Liver Profile"
+        "Liver Profile (LFTs)"
       ],
       "referenceType": "Range Value",
       "catalogIdentity": "test-mv3zqvwu-ksiesy2sw1p",
-      "updatedAt": "2026-10-13T10:30:27.285Z",
+      "updatedAt": "2026-10-20T18:45:35.521Z",
       "cutOff": "",
       "qualitativeReference": "",
       "referenceRules": [],
@@ -1907,16 +1922,16 @@
       "name": "Albumin",
       "unit": "g/dL",
       "range": "3.5 - 5.3",
-      "profile": "Liver Profile",
+      "profile": "Liver Profile (LFTs)",
       "department": "Routine Chemistry",
       "profiles": [
-        "Liver Profile"
+        "Liver Profile (LFTs)"
       ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
       "catalogIdentity": "test-mv3zqvwu-pxymw86d19g",
-      "updatedAt": "2026-10-13T10:30:27.285Z",
+      "updatedAt": "2026-10-20T18:45:35.521Z",
       "cutOff": "",
       "qualitativeReference": "",
       "referenceRules": [],
@@ -1950,16 +1965,16 @@
       "name": "Globulin",
       "unit": "g/dL",
       "range": "1.8 - 3.2",
-      "profile": "Liver Profile",
+      "profile": "Liver Profile (LFTs)",
       "department": "Routine Chemistry",
       "profiles": [
-        "Liver Profile"
+        "Liver Profile (LFTs)"
       ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
       "catalogIdentity": "test-mv3zqvwu-n00zcnwrshd",
-      "updatedAt": "2026-10-13T10:30:27.285Z",
+      "updatedAt": "2026-10-20T18:45:35.521Z",
       "calculationRule": {
         "type": "None",
         "formula": "",
@@ -2005,17 +2020,17 @@
       "code": "LP001",
       "name": "Total Cholesterol",
       "department": "Routine Chemistry",
-      "profile": "Lipid Profile",
+      "profile": "Lipid Profile (FLPs)",
       "unit": "mg/dL",
       "range": "< 200",
       "price": 0,
       "active": true,
       "profiles": [
-        "Lipid Profile"
+        "Lipid Profile (FLPs)"
       ],
       "referenceType": "Range Value",
       "catalogIdentity": "test-mv3zqvwu-fkl1awivt8q",
-      "updatedAt": "2026-10-13T10:49:32.941Z",
+      "updatedAt": "2026-10-20T19:16:03.583Z",
       "cutOff": "",
       "qualitativeReference": "",
       "referenceRules": [],
@@ -2035,17 +2050,17 @@
       "code": "LP002",
       "name": "Triglycerides",
       "department": "Routine Chemistry",
-      "profile": "Lipid Profile",
+      "profile": "Lipid Profile (FLPs)",
       "unit": "mg/dL",
       "range": "< 150",
       "price": 0,
       "active": true,
       "profiles": [
-        "Lipid Profile"
+        "Lipid Profile (FLPs)"
       ],
       "referenceType": "Range Value",
       "catalogIdentity": "test-mv3zqvwu-pynpbslcyws",
-      "updatedAt": "2026-10-13T10:49:42.616Z",
+      "updatedAt": "2026-10-20T19:16:03.583Z",
       "cutOff": "",
       "qualitativeReference": "",
       "referenceRules": [],
@@ -2065,17 +2080,17 @@
       "code": "LP003",
       "name": "HDL Cholesterol",
       "department": "Routine Chemistry",
-      "profile": "Lipid Profile",
+      "profile": "Lipid Profile (FLPs)",
       "unit": "mg/dL",
       "range": "> 40",
       "price": 0,
       "active": true,
       "profiles": [
-        "Lipid Profile"
+        "Lipid Profile (FLPs)"
       ],
       "referenceType": "Range Value",
       "catalogIdentity": "test-mv3zqvwu-wcf1kpubjh8",
-      "updatedAt": "2026-10-13T10:49:51.932Z",
+      "updatedAt": "2026-10-20T19:16:03.583Z",
       "cutOff": "",
       "qualitativeReference": "",
       "referenceRules": [],
@@ -2095,17 +2110,17 @@
       "code": "LP004",
       "name": "LDL Cholesterol",
       "department": "Routine Chemistry",
-      "profile": "Lipid Profile",
+      "profile": "Lipid Profile (FLPs)",
       "unit": "mg/dL",
       "range": "< 100",
       "price": 0,
       "active": true,
       "profiles": [
-        "Lipid Profile"
+        "Lipid Profile (FLPs)"
       ],
       "referenceType": "Range Value",
       "catalogIdentity": "test-mv3zqvwu-p8v92czauma",
-      "updatedAt": "2026-10-13T10:50:07.666Z",
+      "updatedAt": "2026-10-20T19:16:03.583Z",
       "cutOff": "",
       "qualitativeReference": "",
       "referenceRules": [],
@@ -2126,10 +2141,10 @@
       "name": "VLDL",
       "unit": "mg/dl",
       "range": "< 36",
-      "profile": "Lipid Profile",
+      "profile": "Lipid Profile (FLPs)",
       "department": "Routine Chemistry",
       "profiles": [
-        "Lipid Profile"
+        "Lipid Profile (FLPs)"
       ],
       "price": 0,
       "active": true,
@@ -2143,7 +2158,7 @@
         "auto": true,
         "allowManualOverride": false
       },
-      "updatedAt": "2026-10-13T10:50:16.532Z",
+      "updatedAt": "2026-10-20T19:16:03.583Z",
       "cutOff": "",
       "qualitativeReference": "",
       "referenceRules": [],
@@ -2156,10 +2171,10 @@
       "name": "CPK",
       "unit": "U/l",
       "range": "",
-      "profile": "Cardiac Enzymes",
+      "profile": "Cardiac Profile",
       "department": "Routine Chemistry",
       "profiles": [
-        "Cardiac Enzymes"
+        "Cardiac Profile"
       ],
       "price": 0,
       "active": true,
@@ -2194,7 +2209,7 @@
       ],
       "resultValueRules": [],
       "catalogIdentity": "test-mv3zqvwu-8qqu17zdvoa",
-      "updatedAt": "2026-10-13T14:41:52.803Z",
+      "updatedAt": "2026-10-20T19:16:38.173Z",
       "clinicalReferenceRules": [],
       "calculationRule": {
         "type": "None",
@@ -2211,11 +2226,10 @@
       "name": "CK-MB",
       "unit": "U/l",
       "range": "< 25",
-      "profile": "CK-MB",
+      "profile": "Cardiac Profile",
       "department": "Routine Chemistry",
       "profiles": [
-        "CK-MB",
-        "Cardiac Enzymes"
+        "Cardiac Profile"
       ],
       "price": 0,
       "active": true,
@@ -2225,7 +2239,7 @@
       "referenceRules": [],
       "resultValueRules": [],
       "catalogIdentity": "test-mv3zqv3l-2wbn0b1v1l9",
-      "updatedAt": "2026-10-13T14:42:03.244Z",
+      "updatedAt": "2026-10-20T19:16:38.173Z",
       "clinicalReferenceRules": [],
       "calculationRule": {
         "type": "None",
@@ -2242,10 +2256,10 @@
       "name": "LDH",
       "unit": "U/l",
       "range": "< 250",
-      "profile": "Cardiac Enzymes",
+      "profile": "Cardiac Profile",
       "department": "Routine Chemistry",
       "profiles": [
-        "Cardiac Enzymes"
+        "Cardiac Profile"
       ],
       "price": 0,
       "active": true,
@@ -2255,7 +2269,7 @@
       "referenceRules": [],
       "resultValueRules": [],
       "catalogIdentity": "test-mv3zqvwu-9v0r8and6al",
-      "updatedAt": "2026-10-13T14:42:13.945Z",
+      "updatedAt": "2026-10-20T19:16:38.173Z",
       "clinicalReferenceRules": [],
       "calculationRule": {
         "type": "None",
@@ -2356,16 +2370,16 @@
       "name": "Sodium",
       "unit": "mmol/L",
       "range": "135 - 150",
-      "profile": "Electrolytes",
+      "profile": "Electrolytes (S/E)",
       "department": "Routine Chemistry",
       "profiles": [
-        "Electrolytes"
+        "Electrolytes (S/E)"
       ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
       "catalogIdentity": "test-mv3zqvwu-jzbzq7gaatq",
-      "updatedAt": "2026-10-13T14:35:41.045Z",
+      "updatedAt": "2026-10-20T19:16:26.010Z",
       "cutOff": "",
       "qualitativeReference": "",
       "referenceRules": [],
@@ -2386,16 +2400,16 @@
       "name": "Potassium",
       "unit": "mmol/L",
       "range": "3.5 - 5.5",
-      "profile": "Electrolytes",
+      "profile": "Electrolytes (S/E)",
       "department": "Routine Chemistry",
       "profiles": [
-        "Electrolytes"
+        "Electrolytes (S/E)"
       ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
       "catalogIdentity": "test-mv3zqvwu-pv49hv431c",
-      "updatedAt": "2026-10-13T14:35:51.589Z",
+      "updatedAt": "2026-10-20T19:16:26.010Z",
       "cutOff": "",
       "qualitativeReference": "",
       "referenceRules": [],
@@ -2416,16 +2430,16 @@
       "name": "Chloride",
       "unit": "mmol/L",
       "range": "90 - 105",
-      "profile": "Electrolytes",
+      "profile": "Electrolytes (S/E)",
       "department": "Routine Chemistry",
       "profiles": [
-        "Electrolytes"
+        "Electrolytes (S/E)"
       ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
       "catalogIdentity": "test-mv3zqvwu-pdojil2128m",
-      "updatedAt": "2026-10-13T14:36:01.389Z",
+      "updatedAt": "2026-10-20T19:16:26.010Z",
       "cutOff": "",
       "qualitativeReference": "",
       "referenceRules": [],
@@ -2557,9 +2571,11 @@
       "name": "Iron",
       "unit": "µg/dL",
       "range": "60 - 160",
-      "profile": "",
+      "profile": "Iron Profile",
       "department": "Routine Chemistry",
-      "profiles": [],
+      "profiles": [
+        "Iron Profile"
+      ],
       "price": 0,
       "active": true,
       "referenceRules": [],
@@ -2584,7 +2600,7 @@
         "auto": true,
         "allowManualOverride": false
       },
-      "updatedAt": "2026-10-13T14:45:35.373Z",
+      "updatedAt": "2026-10-20T20:21:18.241Z",
       "catalogIdentity": "test-mv3zqvwu-7f11lsr9ic",
       "clinicalReferenceRules": [],
       "createdAt": "2026-10-13T14:45:35.373Z"
@@ -2594,9 +2610,11 @@
       "name": "TIBC",
       "unit": "µg/dL",
       "range": "200 - 400",
-      "profile": "",
+      "profile": "Iron Profile",
       "department": "Routine Chemistry",
-      "profiles": [],
+      "profiles": [
+        "Iron Profile"
+      ],
       "price": 0,
       "active": true,
       "referenceRules": [],
@@ -2621,7 +2639,7 @@
         "auto": true,
         "allowManualOverride": false
       },
-      "updatedAt": "2026-10-13T14:45:47.687Z",
+      "updatedAt": "2026-10-20T20:21:18.241Z",
       "catalogIdentity": "test-mv3zqvwu-1p5eccs96wh",
       "clinicalReferenceRules": [],
       "createdAt": "2026-10-13T14:45:47.687Z"
@@ -5076,7 +5094,7 @@
     },
     {
       "code": "HEM13",
-      "name": "Bleeding Time (BT)",
+      "name": "Bleeding Time",
       "department": "Hematology",
       "profile": "",
       "profiles": [],
@@ -5106,7 +5124,7 @@
         }
       ],
       "referenceCatalogName": "Bleeding Time (BT)",
-      "updatedAt": "2026-10-13T14:23:35.625Z",
+      "updatedAt": "2026-10-20T20:37:40.917Z",
       "createdAt": "2026-10-10T14:32:57.355Z",
       "catalogIdentity": "test-mv3zqvwv-vmt3qtyznk",
       "clinicalReferenceRules": []
@@ -6205,12 +6223,14 @@
       "code": "SPL14",
       "name": "Ferritin",
       "department": "Special Chemistry",
-      "profile": "",
+      "profile": "Iron Profile",
       "unit": "ng/mL",
       "range": "",
       "price": 0,
       "active": true,
-      "profiles": [],
+      "profiles": [
+        "Iron Profile"
+      ],
       "referenceRules": [
         {
           "id": "requested20261010-33-0",
@@ -6258,7 +6278,7 @@
         "auto": true,
         "allowManualOverride": false
       },
-      "updatedAt": "2026-10-20T06:11:44.160Z",
+      "updatedAt": "2026-10-20T20:21:18.241Z",
       "catalogIdentity": "test-mv3zqvwv-flzgeoe965m",
       "clinicalReferenceRules": [],
       "createdAt": "2026-10-14T21:13:39.719Z"
@@ -7179,43 +7199,6 @@
       }
     },
     {
-      "code": "HEM15",
-      "name": "Malaria Parasite Smear (MP)",
-      "department": "Hematology",
-      "profile": "",
-      "profiles": [],
-      "price": 0,
-      "active": false,
-      "calculationRule": {
-        "type": "None",
-        "formula": "",
-        "decimals": 2,
-        "rounding": "Standard",
-        "auto": true,
-        "allowManualOverride": false
-      },
-      "resultValueRules": [],
-      "unit": "",
-      "range": "",
-      "referenceRules": [],
-      "referenceType": "Qualitative",
-      "qualitativeReference": "Negative",
-      "cutOff": "",
-      "referenceSources": [
-        {
-          "title": "Mayo Clinic Laboratories",
-          "url": "https://www.mayocliniclabs.com/test-catalog/Overview/9240",
-          "accessed": "2026-10-10",
-          "note": "Microscopic blood parasite examination; not a malaria antigen assay."
-        }
-      ],
-      "referenceCatalogName": "Malaria Parasite Smear (MP)",
-      "updatedAt": "2026-10-17T13:44:11.792Z",
-      "createdAt": "2026-10-10T14:35:42.185Z",
-      "catalogIdentity": "test-mv3zqvwv-1brwneb6tzt",
-      "clinicalReferenceRules": []
-    },
-    {
       "code": "SPL26",
       "name": "Insulin (Fasting)",
       "department": "Special Chemistry",
@@ -7364,465 +7347,15 @@
       "createdAt": "2026-10-13T15:04:30.441Z"
     },
     {
-      "code": "P003",
-      "name": "T-SPOT.TB",
-      "department": "Molecular Biology",
-      "profile": "TB Screening",
-      "unit": "",
-      "range": "Negative",
-      "price": 0,
-      "active": true,
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mv9wdj82-mvrdhihkxpn",
-      "updatedAt": "2026-10-15T18:53:57.266Z",
-      "profiles": [
-        "TB Screening"
-      ]
-    },
-    {
-      "code": "H001",
-      "name": "WBC",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "10^9/L",
-      "range": "4.00 - 11.00",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-pjygowk123h",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H002",
-      "name": "LYM%",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "%",
-      "range": "20.00 - 50.00",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-jigkzbgag38",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H003",
-      "name": "MON%",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "%",
-      "range": "3.00 - 10.00",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-5hhybyoo92v",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H004",
-      "name": "NEU%",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "%",
-      "range": "50.00 - 70.00",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-zam0n5mubo",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H005",
-      "name": "EOS%",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "%",
-      "range": "0.50 - 7.50",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-2ot7bv00lvr",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H006",
-      "name": "BASO%",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "%",
-      "range": "0.00 - 1.00",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-go5fbgcz7aq",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H007",
-      "name": "LYM#",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "10^9/L",
-      "range": "0.800 - 4.000",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-js4imz611e",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H008",
-      "name": "MON#",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "10^9/L",
-      "range": "0.120 - 1.200",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-s4h6b8ivlgs",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H009",
-      "name": "NEU#",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "10^9/L",
-      "range": "2.000 - 7.000",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-ru6iv1qpl9e",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H010",
-      "name": "EOS#",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "10^9/L",
-      "range": "0.020 - 0.500",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-uvwsivzxt4",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H011",
-      "name": "BASO#",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "10^9/L",
-      "range": "0.000 - 0.100",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-s55uf9bjarq",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H012",
-      "name": "RBC",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "10^12/L",
-      "range": "3.80 - 6.00",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-uygdd5unsc",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H013",
-      "name": "HGB",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "g/dL",
-      "range": "11.5 - 16.0",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-sslq665ud9o",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H014",
-      "name": "HCT",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "%",
-      "range": "42.0 - 55.0",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-3jx28mf012k",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H015",
-      "name": "MCV",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "fL",
-      "range": "75.0 - 95.0",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-vi9qssgx67",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H016",
-      "name": "MCH",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "pg",
-      "range": "26.0 - 32.0",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-hkod4otgvf6",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H017",
-      "name": "MCHC",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "g/dL",
-      "range": "30 - 35",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-m6ktwec90r",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H018",
-      "name": "RDW_SD",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "fL",
-      "range": "35.0 - 56.0",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-90pq8klxgkr",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H019",
-      "name": "RDW_CV",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "%",
-      "range": "11.0 - 16.0",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-nlsu7k6oufp",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H020",
-      "name": "PLT",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "10^9/L",
-      "range": "150 - 450",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-dhbk5f7zs76",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H021",
-      "name": "MPV",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "fL",
-      "range": "6.5 - 12.0",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-b6mves2346p",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H022",
-      "name": "PDW",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "fL",
-      "range": "9.0 - 17.0",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-5f9eqyvc6bs",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H023",
-      "name": "PCT",
-      "department": "Hematology",
-      "profile": "CBC",
-      "unit": "%",
-      "range": "0.11 - 0.28",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "CBC"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-1zj6sx60fko",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H024",
-      "name": "Prothrombin Time (PT)",
-      "department": "Hematology",
-      "profile": "Coagulation Profile",
-      "unit": "sec",
-      "range": "11 - 15",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "Coagulation Profile"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-azn3acffn78",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H025",
-      "name": "INR",
-      "department": "Hematology",
-      "profile": "Coagulation Profile",
-      "unit": "",
-      "range": "0.8 - 1.2",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "Coagulation Profile"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-koy88jewzds",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H026",
-      "name": "APTT",
-      "department": "Hematology",
-      "profile": "Coagulation Profile",
-      "unit": "sec",
-      "range": "25 - 35",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "Coagulation Profile"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-fkgh35h18tc",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "H027",
-      "name": "ESR",
-      "department": "Hematology",
-      "profile": "ESR",
-      "unit": "mm/1st hr",
-      "range": "M: 0 - 15  F: 0 - 20",
-      "price": 0,
-      "active": true,
-      "profiles": [
-        "ESR"
-      ],
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-hywvpo969vd",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
       "code": "CY001",
       "name": "Cytology for Malignant Cells",
       "department": "Cytology",
-      "profile": "Cytology",
+      "profile": "",
       "unit": "",
       "range": "Descriptive",
       "price": 0,
       "active": true,
-      "profiles": [
-        "Cytology"
-      ],
+      "profiles": [],
       "referenceType": "Range Value",
       "catalogIdentity": "test-mvcv4jjn-t7mhuytn0ci",
       "updatedAt": "2026-10-17T20:42:16.692Z"
@@ -7831,14 +7364,12 @@
       "code": "CY002",
       "name": "Pap Smear (Conventional)",
       "department": "Cytology",
-      "profile": "Pap Smear",
+      "profile": "",
       "unit": "",
       "range": "Descriptive",
       "price": 0,
       "active": true,
-      "profiles": [
-        "Pap Smear"
-      ],
+      "profiles": [],
       "referenceType": "Range Value",
       "catalogIdentity": "test-mvcv4jjn-sy7aar0zqv",
       "updatedAt": "2026-10-17T20:42:16.692Z"
@@ -7847,14 +7378,12 @@
       "code": "CY003",
       "name": "Fine Needle Aspiration Cytology (FNAC)",
       "department": "Cytology",
-      "profile": "FNAC",
+      "profile": "",
       "unit": "",
       "range": "Descriptive",
       "price": 0,
       "active": true,
-      "profiles": [
-        "FNAC"
-      ],
+      "profiles": [],
       "referenceType": "Range Value",
       "catalogIdentity": "test-mvcv4jjn-a5omwohhc7b",
       "updatedAt": "2026-10-17T20:42:16.692Z"
@@ -7870,8 +7399,8 @@
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-vnv46btuzdc",
-      "updatedAt": "2026-10-20T05:43:40.966Z"
+      "catalogIdentity": "test-mvh50pow-cd92pdxi17j",
+      "updatedAt": "2026-10-20T20:35:24.022Z"
     },
     {
       "code": "T002",
@@ -7884,72 +7413,64 @@
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-h9reni4jxwe",
-      "updatedAt": "2026-10-20T05:43:40.966Z"
+      "catalogIdentity": "test-mvh50pow-2gxpcncg00h",
+      "updatedAt": "2026-10-20T20:35:24.022Z"
     },
     {
       "code": "T003",
       "name": "Uric Acid",
       "unit": "mg/dl",
       "range": "M: 3.5 - 7.2 F: 3.5 - .0",
-      "profile": "Renal Profile",
+      "profile": "",
       "department": "Routine Chemistry",
-      "profiles": [
-        "Renal Profile"
-      ],
+      "profiles": [],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-m5c2vxkeave",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-k9830tbdw3m",
+      "updatedAt": "2026-10-20T20:35:21.300Z"
     },
     {
       "code": "T004",
       "name": "Urea",
       "unit": "mg/dl",
       "range": "17 - 43",
-      "profile": "Renal Profile",
+      "profile": "",
       "department": "Routine Chemistry",
-      "profiles": [
-        "Renal Profile"
-      ],
+      "profiles": [],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-6238vogi5cp",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-qmudma1g0t",
+      "updatedAt": "2026-10-20T20:35:21.300Z"
     },
     {
       "code": "T005",
       "name": "Creatinine",
       "unit": "mg/dl",
       "range": "0.67 - 1.17",
-      "profile": "Renal Profile",
+      "profile": "",
       "department": "Routine Chemistry",
-      "profiles": [
-        "Renal Profile"
-      ],
+      "profiles": [],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-kmqykvvig1",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-rc8nw9jkqxc",
+      "updatedAt": "2026-10-20T20:35:21.300Z"
     },
     {
       "code": "T006",
       "name": "BUN",
       "unit": "",
       "range": "08 - 20",
-      "profile": "Renal Profile",
+      "profile": "",
       "department": "Routine Chemistry",
-      "profiles": [
-        "Renal Profile"
-      ],
+      "profiles": [],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-yf1jkgwsndm",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-9wlvmtzgufs",
+      "updatedAt": "2026-10-20T20:35:21.300Z"
     },
     {
       "code": "T007",
@@ -7964,8 +7485,8 @@
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-tfmweroloff",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-fs7iir16g9o",
+      "updatedAt": "2026-10-20T20:30:18.896Z"
     },
     {
       "code": "T008",
@@ -7978,8 +7499,8 @@
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-zedsj895rk",
-      "updatedAt": "2026-10-20T05:44:16.052Z"
+      "catalogIdentity": "test-mvh50pow-b93iiik0057",
+      "updatedAt": "2026-10-20T20:35:19.196Z"
     },
     {
       "code": "T009",
@@ -7992,8 +7513,8 @@
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-na589prjtln",
-      "updatedAt": "2026-10-20T05:44:16.052Z"
+      "catalogIdentity": "test-mvh50pow-3r0qaq8qplh",
+      "updatedAt": "2026-10-20T20:35:19.196Z"
     },
     {
       "code": "T010",
@@ -8006,8 +7527,8 @@
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-pe46e5ybjmf",
-      "updatedAt": "2026-10-20T05:44:16.052Z"
+      "catalogIdentity": "test-mvh50pow-gnr47r8uys",
+      "updatedAt": "2026-10-20T20:35:19.196Z"
     },
     {
       "code": "T011",
@@ -8020,8 +7541,8 @@
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-zz0ujweyang",
-      "updatedAt": "2026-10-20T05:44:16.052Z"
+      "catalogIdentity": "test-mvh50pow-r38ihiocrl8",
+      "updatedAt": "2026-10-20T20:35:19.196Z"
     },
     {
       "code": "T012",
@@ -8034,8 +7555,8 @@
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-9wufj1ggnlo",
-      "updatedAt": "2026-10-20T05:44:16.052Z"
+      "catalogIdentity": "test-mvh50pow-3fbu21g54bw",
+      "updatedAt": "2026-10-20T20:35:19.196Z"
     },
     {
       "code": "T013",
@@ -8048,22 +7569,24 @@
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-t4zz7qtd13h",
-      "updatedAt": "2026-10-20T05:44:16.052Z"
+      "catalogIdentity": "test-mvh50pow-dei8chcu5df",
+      "updatedAt": "2026-10-20T20:35:19.196Z"
     },
     {
       "code": "T014",
       "name": "S. Protein",
       "unit": "g/dL",
       "range": "6.6 - 8.3",
-      "profile": "",
+      "profile": "S. Protein",
       "department": "Routine Chemistry",
-      "profiles": [],
+      "profiles": [
+        "S. Protein"
+      ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-6pm6zq1dk7w",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-d78swbyypbg",
+      "updatedAt": "2026-10-20T20:30:18.896Z"
     },
     {
       "code": "T015",
@@ -8076,8 +7599,8 @@
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-fw9in2ipt6r",
-      "updatedAt": "2026-10-20T05:44:16.052Z"
+      "catalogIdentity": "test-mvh50pow-9f9mz69qlo",
+      "updatedAt": "2026-10-20T20:35:19.196Z"
     },
     {
       "code": "T016",
@@ -8090,176 +7613,170 @@
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-1ryhmgacq26",
-      "updatedAt": "2026-10-20T05:44:16.052Z"
+      "catalogIdentity": "test-mvh50pow-sye5mkccm3r",
+      "updatedAt": "2026-10-20T20:35:19.196Z"
     },
     {
       "code": "T017",
       "name": "Cholesterol",
       "unit": "mg/dl",
       "range": "50 - 200",
-      "profile": "Lipid Profile",
+      "profile": "",
       "department": "Routine Chemistry",
-      "profiles": [
-        "Lipid Profile"
-      ],
+      "profiles": [],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-eqnmcthnv5n",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-c562y8r4btm",
+      "updatedAt": "2026-10-20T20:35:16.526Z"
     },
     {
       "code": "T018",
       "name": "Triglycerides",
       "unit": "mg/dl",
       "range": "Upto 150",
-      "profile": "Lipid Profile",
+      "profile": "",
       "department": "Routine Chemistry",
-      "profiles": [
-        "Lipid Profile"
-      ],
+      "profiles": [],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-diuszk083hu",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-ksbnar0rzh",
+      "updatedAt": "2026-10-20T20:35:16.526Z"
     },
     {
       "code": "T019",
       "name": "HDL",
       "unit": "mg/dl",
       "range": "Upto 60",
-      "profile": "Lipid Profile",
+      "profile": "",
       "department": "Routine Chemistry",
-      "profiles": [
-        "Lipid Profile"
-      ],
+      "profiles": [],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-b8j2zzykv0s",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-vk8sth6s5m",
+      "updatedAt": "2026-10-20T20:35:16.526Z"
     },
     {
       "code": "T020",
       "name": "LDL",
       "unit": "mg/dl",
       "range": "Upto 160",
-      "profile": "Lipid Profile",
+      "profile": "",
       "department": "Routine Chemistry",
-      "profiles": [
-        "Lipid Profile"
-      ],
+      "profiles": [],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-4k7flt9yf2d",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-15jsxwvnuuw",
+      "updatedAt": "2026-10-20T20:35:16.526Z"
     },
     {
       "code": "T021",
       "name": "VLDL",
       "unit": "mg/dl",
       "range": "Upto 36",
-      "profile": "Lipid Profile",
+      "profile": "",
       "department": "Routine Chemistry",
-      "profiles": [
-        "Lipid Profile"
-      ],
+      "profiles": [],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-4izdqs4vxjc",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-gobavoyiae",
+      "updatedAt": "2026-10-20T20:35:16.526Z"
     },
     {
       "code": "T022",
       "name": "CPK",
       "unit": "U/l",
       "range": "M: Upto 170 F: Upto 145",
-      "profile": "",
+      "profile": "Cardiac Profile",
       "department": "Routine Chemistry",
-      "profiles": [],
+      "profiles": [
+        "Cardiac Profile"
+      ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-ud2d8z671v",
-      "updatedAt": "2026-10-20T05:43:49.394Z"
+      "catalogIdentity": "test-mvh50pow-gt8fodvvhpf",
+      "updatedAt": "2026-10-20T20:30:18.896Z"
     },
     {
       "code": "T023",
       "name": "CK.MB",
       "unit": "U/l",
       "range": "Upto 25",
-      "profile": "",
+      "profile": "CK.MB",
       "department": "Routine Chemistry",
-      "profiles": [],
+      "profiles": [
+        "CK.MB"
+      ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-8sglk2mu244",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-567kotm8irg",
+      "updatedAt": "2026-10-20T20:30:18.896Z"
     },
     {
       "code": "T024",
       "name": "LDH",
       "unit": "U/l",
       "range": "Upto 250",
-      "profile": "",
+      "profile": "Cardiac Profile",
       "department": "Routine Chemistry",
-      "profiles": [],
+      "profiles": [
+        "Cardiac Profile"
+      ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-h5dflftv9st",
-      "updatedAt": "2026-10-20T05:43:49.394Z"
+      "catalogIdentity": "test-mvh50pow-hxhiosxhoqc",
+      "updatedAt": "2026-10-20T20:30:18.896Z"
     },
     {
       "code": "T025",
       "name": "Calcium",
       "unit": "mg/dl",
       "range": "8.8 - 10.5",
-      "profile": "Electrolytes",
-      "department": "Routine Chemistry",
-      "profiles": [
-        "Electrolytes"
-      ],
-      "price": 0,
-      "active": true,
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-djj7p0eu0nk",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "T026",
-      "name": "S. Phosphorous",
-      "unit": "mg/dl",
-      "range": "2.5 - 4.5",
       "profile": "",
       "department": "Routine Chemistry",
       "profiles": [],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-bsh4l496tk",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-uo50j9izyhq",
+      "updatedAt": "2026-10-20T20:35:14.068Z"
+    },
+    {
+      "code": "T026",
+      "name": "S. Phosphorous",
+      "unit": "mg/dl",
+      "range": "2.5 - 4.5",
+      "profile": "S. Phosphorous",
+      "department": "Routine Chemistry",
+      "profiles": [
+        "S. Phosphorous"
+      ],
+      "price": 0,
+      "active": true,
+      "referenceType": "Range Value",
+      "catalogIdentity": "test-mvh50pow-se4o2wln1lm",
+      "updatedAt": "2026-10-20T20:30:18.896Z"
     },
     {
       "code": "T027",
       "name": "Magnesium",
       "unit": "mg/dl",
       "range": "1.8 - 2.5",
-      "profile": "Electrolytes",
+      "profile": "",
       "department": "Routine Chemistry",
-      "profiles": [
-        "Electrolytes"
-      ],
+      "profiles": [],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-7u3gk9det7",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-ujqeroltmg8",
+      "updatedAt": "2026-10-20T20:35:14.068Z"
     },
     {
       "code": "T028",
@@ -8272,8 +7789,8 @@
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-hhq7i4plzvm",
-      "updatedAt": "2026-10-20T05:43:53.386Z"
+      "catalogIdentity": "test-mvh50pow-1vb2knoqhbi",
+      "updatedAt": "2026-10-20T20:35:11.543Z"
     },
     {
       "code": "T029",
@@ -8286,140 +7803,114 @@
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-cbjfl2a2nw",
-      "updatedAt": "2026-10-20T05:43:53.386Z"
-    },
-    {
-      "code": "T030",
-      "name": "Iron",
-      "unit": "µg/dl",
-      "range": "60 - 160",
-      "profile": "",
-      "department": "Routine Chemistry",
-      "profiles": [],
-      "price": 0,
-      "active": true,
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-wz253oxf3gm",
-      "updatedAt": "2026-10-20T05:43:57.565Z"
-    },
-    {
-      "code": "T031",
-      "name": "TIBC",
-      "unit": "µg/dl",
-      "range": "200 - 400",
-      "profile": "",
-      "department": "Routine Chemistry",
-      "profiles": [],
-      "price": 0,
-      "active": true,
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-bpxekcovzad",
-      "updatedAt": "2026-10-20T05:43:57.565Z"
+      "catalogIdentity": "test-mvh50pow-xlmhlljk2ge",
+      "updatedAt": "2026-10-20T20:35:11.543Z"
     },
     {
       "code": "T032",
       "name": "ASO Titer",
       "unit": "mg/dl",
       "range": "< 200",
-      "profile": "",
+      "profile": "ASO Titer",
       "department": "Routine Chemistry",
-      "profiles": [],
+      "profiles": [
+        "ASO Titer"
+      ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-qymqu2dr3qe",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-rzh5vlzelbh",
+      "updatedAt": "2026-10-20T20:30:18.896Z"
     },
     {
       "code": "T033",
       "name": "RA Factor",
       "unit": "IU/ml",
       "range": "< 14.0",
-      "profile": "",
+      "profile": "RA Factor",
       "department": "Routine Chemistry",
-      "profiles": [],
+      "profiles": [
+        "RA Factor"
+      ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-b6fjjh00tta",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-u97xbwc2g7n",
+      "updatedAt": "2026-10-20T20:30:18.896Z"
     },
     {
       "code": "T034",
       "name": "CRP",
       "unit": "mg/l",
       "range": "< 10.0",
-      "profile": "",
+      "profile": "Inflammatory Markers",
       "department": "Routine Chemistry",
-      "profiles": [],
+      "profiles": [
+        "Inflammatory Markers"
+      ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-re5fdtsy21",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-hedtwkyrc1t",
+      "updatedAt": "2026-10-20T20:30:18.896Z"
     },
     {
       "code": "T035",
       "name": "Sodium",
       "unit": "mmol/L",
       "range": "135 - 150",
-      "profile": "Electrolytes",
-      "department": "Routine Chemistry",
-      "profiles": [
-        "Electrolytes"
-      ],
-      "price": 0,
-      "active": true,
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-yasuxpp43",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "T036",
-      "name": "Potassium",
-      "unit": "mmol/L",
-      "range": "3.5 - 5.5",
-      "profile": "Electrolytes",
-      "department": "Routine Chemistry",
-      "profiles": [
-        "Electrolytes"
-      ],
-      "price": 0,
-      "active": true,
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-oyy4sehp2s",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "T037",
-      "name": "Chloride",
-      "unit": "mmol/L",
-      "range": "90 - 105",
-      "profile": "Electrolytes",
-      "department": "Routine Chemistry",
-      "profiles": [
-        "Electrolytes"
-      ],
-      "price": 0,
-      "active": true,
-      "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-p9nlqf70kug",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
-    },
-    {
-      "code": "T038",
-      "name": "24 Hrs. Urine Protein",
-      "unit": "g/day",
-      "range": "0.04 - 0.12",
       "profile": "",
       "department": "Routine Chemistry",
       "profiles": [],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-j0ecnj8p5gm",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-ltyj1y6nak",
+      "updatedAt": "2026-10-20T20:35:14.068Z"
+    },
+    {
+      "code": "T036",
+      "name": "Potassium",
+      "unit": "mmol/L",
+      "range": "3.5 - 5.5",
+      "profile": "",
+      "department": "Routine Chemistry",
+      "profiles": [],
+      "price": 0,
+      "active": true,
+      "referenceType": "Range Value",
+      "catalogIdentity": "test-mvh50pow-mpzdmv000jc",
+      "updatedAt": "2026-10-20T20:35:14.068Z"
+    },
+    {
+      "code": "T037",
+      "name": "Chloride",
+      "unit": "mmol/L",
+      "range": "90 - 105",
+      "profile": "",
+      "department": "Routine Chemistry",
+      "profiles": [],
+      "price": 0,
+      "active": true,
+      "referenceType": "Range Value",
+      "catalogIdentity": "test-mvh50pow-2aurrhbxsu1",
+      "updatedAt": "2026-10-20T20:35:14.068Z"
+    },
+    {
+      "code": "T038",
+      "name": "24 Hrs. Urine Protein",
+      "unit": "g/day",
+      "range": "0.04 - 0.12",
+      "profile": "24 Hrs. Urine Protein",
+      "department": "Routine Chemistry",
+      "profiles": [
+        "24 Hrs. Urine Protein"
+      ],
+      "price": 0,
+      "active": true,
+      "referenceType": "Range Value",
+      "catalogIdentity": "test-mvh50pow-cwjb6fv748b",
+      "updatedAt": "2026-10-20T20:30:18.896Z"
     },
     {
       "code": "T039",
@@ -8434,156 +7925,158 @@
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-4n5v7d92u9d",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-kbr258es1gl",
+      "updatedAt": "2026-10-20T20:30:18.896Z"
     },
     {
       "code": "T040",
       "name": "Anti HCV",
       "unit": "",
       "range": "",
-      "profile": "",
+      "profile": "Anti HCV",
       "department": "Routine Chemistry",
-      "profiles": [],
+      "profiles": [
+        "Anti HCV"
+      ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-ua6tlyiuiz",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-29zf37aul59",
+      "updatedAt": "2026-10-20T20:30:18.896Z"
     },
     {
       "code": "T041",
       "name": "HIV",
       "unit": "",
       "range": "",
-      "profile": "",
+      "profile": "HIV",
       "department": "Routine Chemistry",
-      "profiles": [],
+      "profiles": [
+        "HIV"
+      ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-uzoqqls9vn",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-4r85accusn5",
+      "updatedAt": "2026-10-20T20:30:18.896Z"
     },
     {
       "code": "T042",
       "name": "H. Pylori",
       "unit": "",
       "range": "",
-      "profile": "",
+      "profile": "H. Pylori",
       "department": "Routine Chemistry",
-      "profiles": [],
+      "profiles": [
+        "H. Pylori"
+      ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-9goxvtpa0pg",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-bcm5udnzctd",
+      "updatedAt": "2026-10-20T20:30:18.896Z"
     },
     {
       "code": "T043",
       "name": "Trop I",
       "unit": "",
       "range": "",
-      "profile": "",
+      "profile": "Trop I",
       "department": "Routine Chemistry",
-      "profiles": [],
+      "profiles": [
+        "Trop I"
+      ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-wd7bu1exq5m",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-6mkhmr0p858",
+      "updatedAt": "2026-10-20T20:30:18.896Z"
     },
     {
       "code": "T044",
       "name": "VDRL",
       "unit": "",
       "range": "",
-      "profile": "",
+      "profile": "VDRL",
       "department": "Routine Chemistry",
-      "profiles": [],
+      "profiles": [
+        "VDRL"
+      ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-hxxq4zjy74l",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-2sl2daspe33",
+      "updatedAt": "2026-10-20T20:30:18.896Z"
     },
     {
       "code": "T045",
       "name": "Mycodot",
       "unit": "",
       "range": "",
-      "profile": "",
+      "profile": "Mycodot",
       "department": "Routine Chemistry",
-      "profiles": [],
+      "profiles": [
+        "Mycodot"
+      ],
       "price": 0,
       "active": true,
       "referenceType": "Range Value",
-      "catalogIdentity": "test-mvcv4jjn-l6xivbb091i",
-      "updatedAt": "2026-10-17T20:42:16.692Z"
+      "catalogIdentity": "test-mvh50pow-etqwnqsd3zr",
+      "updatedAt": "2026-10-20T20:30:18.896Z"
     }
   ],
   "profileRegistry": [
     "Blood C/E, CBC",
-    "CK-MB",
-    "TB Screening",
-    "Cytology",
-    "Pap Smear",
-    "FNAC",
     "Coagulation Profile",
-    "Liver Profile",
-    "Renal Profile",
-    "Lipid Profile",
-    "Electrolytes",
-    "Cardiac Enzymes",
+    "Liver Profile (LFTs)",
+    "Renal Profile (RFTs)",
+    "Lipid Profile (FLPs)",
+    "Electrolytes (S/E)",
+    "Cardiac Profile",
     "GTT",
+    "Iron Profile",
     "Urine C/E, R/E",
     "Stool C/E, R/E",
     "Semen C/E, R/E",
     "Thyroid Profile (T3, T4, TSH)",
-    "Thyroid Profile (FT3, FT4, TSH)",
-    "HbsAg",
-    "CBC",
     "ESR",
-    "eGFR"
+    "Thyroid Profile (FT3, FT4, TSH)"
   ],
   "profileDepartments": {
     "blood c/e, cbc": "Hematology",
     "urine c/e, r/e": "Microbiology",
     "stool c/e, r/e": "Microbiology",
     "semen c/e, r/e": "Microbiology",
-    "lipid profile": "Routine Chemistry",
-    "liver profile": "Routine Chemistry",
-    "renal profile": "Routine Chemistry",
-    "electrolytes": "Routine Chemistry",
     "coagulation profile": "Hematology",
-    "cardiac enzymes": "Routine Chemistry",
     "thyroid profile (t3, t4, tsh)": "Special Chemistry",
     "thyroid profile (ft3, ft4, tsh)": "Special Chemistry",
-    "gtt": "Routine Chemistry"
+    "gtt": "Routine Chemistry",
+    "liver profile (lfts)": "Routine Chemistry",
+    "renal profile (rfts)": "Routine Chemistry",
+    "lipid profile (flps)": "Routine Chemistry",
+    "electrolytes (s/e)": "Routine Chemistry",
+    "cardiac profile": "Routine Chemistry",
+    "iron profile": "Multi"
   },
   "profileCodes": {
     "blood c/e, cbc": "P0001",
-    "renal profile": "P0022",
-    "ck-mb": "P003",
-    "tb screening": "P005",
-    "cytology": "P006",
-    "pap smear": "P007",
-    "fnac": "P008",
-    "lipid profile": "P0023",
     "urine c/e, r/e": "P0051",
     "stool c/e, r/e": "P0052",
     "semen c/e, r/e": "P0053",
     "coagulation profile": "P0002",
-    "liver profile": "P0021",
-    "electrolytes": "P0024",
-    "cardiac enzymes": "P0025",
     "thyroid profile (t3, t4, tsh)": "P0061",
     "thyroid profile (ft3, ft4, tsh)": "P0062",
     "gtt": "P0031",
-    "hbsag": "P070",
-    "cbc": "P071",
     "esr": "P076",
-    "egfr": "P077"
+    "liver profile (lfts)": "P0021",
+    "renal profile (rfts)": "P0022",
+    "lipid profile (flps)": "P0023",
+    "electrolytes (s/e)": "P0024",
+    "cardiac profile": "P0025",
+    "iron profile": "P0041",
+    "vitamin profile": "P079",
+    "tb screening": "P080",
+    "inflammatory markers": "P087"
   },
   "profileTestOrder": {
     "Blood C/E, CBC": [
@@ -8603,31 +8096,8 @@
     ],
     "Coagulation Profile": [
       "COG01",
-      "COG02",
       "COG03",
-      "H024",
-      "H025",
-      "H026"
-    ],
-    "Electrolytes": [
-      "ELC01",
-      "ELC02",
-      "ELC03",
-      "T025",
-      "T027",
-      "T035",
-      "T036",
-      "T037"
-    ],
-    "Renal Profile": [
-      "RFT01",
-      "RFT02",
-      "RFT03",
-      "RFT04",
-      "T003",
-      "T004",
-      "T005",
-      "T006"
+      "COG02"
     ],
     "Urine C/E, R/E": [
       "UR001",
@@ -8694,46 +8164,6 @@
       "SEM22",
       "SEM23"
     ],
-    "Lipid Profile": [
-      "LP001",
-      "LP002",
-      "LP003",
-      "LP004",
-      "LP005",
-      "T017",
-      "T018",
-      "T019",
-      "T020",
-      "T021"
-    ],
-    "TB Screening": [
-      "P003"
-    ],
-    "Cytology": [
-      "CY001"
-    ],
-    "Pap Smear": [
-      "CY002"
-    ],
-    "FNAC": [
-      "CY003"
-    ],
-    "Liver Profile": [
-      "LFT01",
-      "LFT02",
-      "LFT03",
-      "LFT04",
-      "LF0T5",
-      "LFT06",
-      "LFT07",
-      "LFT08",
-      "LFT09"
-    ],
-    "Cardiac Enzymes": [
-      "CE001",
-      "CE002",
-      "CE003"
-    ],
     "Thyroid Profile (T3, T4, TSH)": [
       "SPL02",
       "SPL03",
@@ -8748,7 +8178,52 @@
       "GTTFS",
       "GTT1H",
       "GTT2H"
-    ]
+    ],
+    "Liver Profile (LFTs)": [
+      "LFT01",
+      "LFT02",
+      "LFT03",
+      "LFT04",
+      "LF0T5",
+      "LFT06",
+      "LFT07",
+      "LFT08",
+      "LFT09"
+    ],
+    "Renal Profile (RFTs)": [
+      "RFT01",
+      "RFT02",
+      "RFT03",
+      "RFT04"
+    ],
+    "Lipid Profile (FLPs)": [
+      "LP001",
+      "LP002",
+      "LP003",
+      "LP004",
+      "LP005"
+    ],
+    "Electrolytes (S/E)": [
+      "ELC01",
+      "ELC02",
+      "ELC03"
+    ],
+    "Cardiac Profile": [
+      "CE001",
+      "CE002",
+      "CE003",
+      "T022",
+      "T024"
+    ],
+    "Iron Profile": [
+      "CH016",
+      "CH017",
+      "SPL14"
+    ],
+    "TEST::CBC01": [],
+    "TEST::CBC02": [],
+    "Viral Screening (ELISA)": [],
+    "Glucose, Fasting": []
   },
   "profileSections": {
     "Urine C/E, R/E": [
@@ -8999,63 +8474,6 @@
         "resultValueRules": []
       }
     },
-    "Lipid Profile": {
-      "LP005": {
-        "calculationRule": {
-          "mode": "Formula",
-          "type": "Formula",
-          "formula": "[T018] / 5",
-          "decimals": 2,
-          "rounding": "Standard",
-          "auto": true,
-          "allowManualOverride": false,
-          "validity": {
-            "formula": "[T018] / 5",
-            "sources": {
-              "T018": {
-                "min": 0,
-                "maxExclusive": 400
-              }
-            },
-            "units": {
-              "T018": "mg/dL",
-              "T021": "mg/dL"
-            },
-            "resultMin": 0
-          }
-        }
-      }
-    },
-    "Liver Profile": {
-      "LFT09": {
-        "calculationRule": {
-          "mode": "Formula",
-          "type": "Formula",
-          "formula": "[LFT07] - [LFT08]",
-          "decimals": 2,
-          "rounding": "Standard",
-          "auto": true,
-          "allowManualOverride": false,
-          "validity": {
-            "formula": "[C014] - [T015]",
-            "sources": {
-              "C014": {
-                "min": 0
-              },
-              "T015": {
-                "min": 0
-              }
-            },
-            "units": {
-              "C014": "g/dL",
-              "T015": "g/dL",
-              "T016": "g/dL"
-            },
-            "resultMin": 0
-          }
-        }
-      }
-    },
     "GTT": {
       "GTT1H": {
         "unitOverride": "mg/dL",
@@ -9147,16 +8565,75 @@
           "formula": ""
         }
       }
+    },
+    "Liver Profile (LFTs)": {
+      "LFT09": {
+        "calculationRule": {
+          "mode": "Formula",
+          "type": "Formula",
+          "formula": "[LFT07] - [LFT08]",
+          "decimals": 2,
+          "rounding": "Standard",
+          "auto": true,
+          "allowManualOverride": false,
+          "validity": {
+            "formula": "[C014] - [T015]",
+            "sources": {
+              "C014": {
+                "min": 0
+              },
+              "T015": {
+                "min": 0
+              }
+            },
+            "units": {
+              "C014": "g/dL",
+              "T015": "g/dL",
+              "T016": "g/dL"
+            },
+            "resultMin": 0
+          }
+        }
+      }
+    },
+    "Lipid Profile (FLPs)": {
+      "LP005": {
+        "calculationRule": {
+          "mode": "Formula",
+          "type": "Formula",
+          "formula": "[T018] / 5",
+          "decimals": 2,
+          "rounding": "Standard",
+          "auto": true,
+          "allowManualOverride": false,
+          "validity": {
+            "formula": "[T018] / 5",
+            "sources": {
+              "T018": {
+                "min": 0,
+                "maxExclusive": 400
+              }
+            },
+            "units": {
+              "T018": "mg/dL",
+              "T021": "mg/dL"
+            },
+            "resultMin": 0
+          }
+        }
+      }
     }
   },
   "profileActive": {
-    "liver profile": true,
-    "electrolytes": true,
     "coagulation profile": true,
-    "cardiac enzymes": true,
     "thyroid profile (t3, t4, tsh)": true,
     "thyroid profile (ft3, ft4, tsh)": true,
     "gtt": true,
-    "cbc": false
+    "liver profile (lfts)": true,
+    "renal profile (rfts)": true,
+    "lipid profile (flps)": true,
+    "electrolytes (s/e)": true,
+    "cardiac profile": true,
+    "iron profile": true
   }
 }
