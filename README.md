@@ -2,7 +2,7 @@
 
 Version 1.0.0 · App version 2026 · Developer: Noman Tahir
 
-This source package builds the Medicsoft PLMS Windows x64 installer through GitHub Actions. It packages the supplied PLMS-Optimized(1).html UI and clinical workflows, with 234 tests, 15 profiles and 61 employees embedded for fresh installations. No Windows executable is precompiled in this ZIP.
+This source package builds the Medicsoft PLMS Windows x64 installer through GitHub Actions. It packages your uploaded `PLMS-Optimized(2).html`, preserving its 234 tests, 15 profiles, 61 employees and 9 trainee records. No Windows executable is precompiled in this ZIP.
 
 ## Build the installer
 
@@ -17,7 +17,7 @@ Alternatively, on Windows with Rust/MSVC and Python installed, run `BUILD PLMS.b
 
 Name: **Noman Tahir** or User ID: **U001**. Password: **123**.
 
-Only this account is seeded. An existing installation retains its database, credentials and user-created accounts. Fresh installs contain no demo patients, orders, results or inventory. The updated employee roster (61 employees) and supplied trainee seed are included; these records are preserved on upgrades. Bypass Login and Bypass Processing remain configurable in PLMS.
+Only this account is seeded. An existing installation retains its database, credentials and user-created accounts. Fresh installs contain the supplied catalog and management records, with no demo patients, orders, results or inventory. Bypass Login and Bypass Processing remain configurable in PLMS.
 
 ## Installed folders
 
@@ -61,11 +61,3 @@ The current page and modal button styles, compact patient/order forms, patient a
 This revision replaces runtime variables in `SetCtlColors` with compile-time color literals, selected by the detected Windows appearance. The former variable arguments compiled as black, hiding labels on black backgrounds. Setup and uninstall now use the same native 14-dialog-unit button height; the previous 18-unit height conflicted with native page transitions. A regression check rejects color variables in these commands during the GitHub build.
 
 Rebuild the installer from this complete source package. Run the newly generated setup, rather than an earlier downloaded EXE. The updated uninstaller is installed by that setup. Windows visual execution remains to be verified.
-
-## Updated October 21 clinical baseline
-
-The HTML and `src/Catalog/catalog.seed.json` share the same 234 tests and 15 profiles. `backend/management.seed.json` and the HTML management seed include 61 employees plus the supplied trainees. The native SQLite database is authoritative after installation; existing ProgramData is never forcibly overwritten with new seed data. Existing installations require an explicit catalog import/migration to replace their previous catalog. The GitHub source files contain staff contact data and must be kept private.
-
-## Updated October 21 clinical baseline
-
-The HTML and `src/Catalog/catalog.seed.json` share the same 234 tests and 15 profiles. `backend/management.seed.json` and the HTML management seed include 61 employees plus the supplied trainees. The native SQLite database is authoritative after installation; existing ProgramData is never forcibly overwritten with new seed data. Existing installations require an explicit catalog import/migration to replace their previous catalog. The GitHub source files contain staff contact data and must be kept private.

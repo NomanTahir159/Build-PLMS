@@ -46,7 +46,8 @@ class DesktopIntegrationTests(unittest.TestCase):
   self.assertEqual(self.api.load()[1]['management']['employees'][0]['name'],'Updated')
  def test_management_seed_migration_preserves_clinical_data(self):
   previous=self.api.load()[1];self.api.ensure_management();after=self.api.load()[1]
-  self.assertEqual(len(after['management']['employees']),0)
+  seed=json.loads((pathlib.Path(__file__).parents[1]/'management.seed.json').read_text(encoding='utf-8'))
+  self.assertEqual(after['management'],seed)
   self.assertEqual(after['patients'],previous['patients']);self.assertEqual(after['catalog'],previous['catalog'])
  def test_management_schema_rejects_duplicate_ids(self):
   with self.assertRaises(m.ApiError):m.validate_management({'employees':[{'id':1,'name':'A'},{'id':1,'name':'B'}],'trainees':[]})
