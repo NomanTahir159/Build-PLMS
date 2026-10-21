@@ -2,7 +2,7 @@
 
 Version 1.0.0 · App version 2026 · Developer: Noman Tahir
 
-This source package builds the Medicsoft PLMS Windows x64 installer through GitHub Actions. It packages your uploaded `PLMS-Optimized(2).html`, preserving its 234 tests, 15 profiles, 61 employees and 9 trainee records. No Windows executable is precompiled in this ZIP.
+This source package builds the Medicsoft PLMS Windows x64 installer through GitHub Actions. It packages the latest `PLMS-Grouped-Deduplicated-Report-Notes.html`, preserving its 192 tests, 14 profiles, 61 employees and 9 trainee records. No Windows executable is precompiled in this ZIP.
 
 ## Build the installer
 
@@ -61,3 +61,7 @@ The current page and modal button styles, compact patient/order forms, patient a
 This revision replaces runtime variables in `SetCtlColors` with compile-time color literals, selected by the detected Windows appearance. The former variable arguments compiled as black, hiding labels on black backgrounds. Setup and uninstall now use the same native 14-dialog-unit button height; the previous 18-unit height conflicted with native page transitions. A regression check rejects color variables in these commands during the GitHub build.
 
 Rebuild the installer from this complete source package. Run the newly generated setup, rather than an earlier downloaded EXE. The updated uninstaller is installed by that setup. Windows visual execution remains to be verified.
+
+## Latest result and report updates
+
+Save, Submit, Approve, Reperform, Retest and Reject advance once through the current selection or patient session and close when it is complete. Validation failures and canceled actions leave the current record open. Result-note template suggestions overlay the editor and use inset rounded scrollbars. Notes attach automatically to their test/profile; order-level notes remain at the end. Notes after each table share one category heading, with duplicate text/list entries removed. Stored note ownership is preserved.

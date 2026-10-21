@@ -1,7 +1,7 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 const html=fs.readFileSync(require('path').resolve(__dirname,'../../src/System/index.html'),'utf8');
 function fn(name){const m=html.match(new RegExp('function '+name+'\\([^]*?\\n\\}'));assert(m,name);return m[0]}
-const c={Date,window:{},currentResultLab:'1',currentResultLabel:'Test',selectedResultDate:new Date(),state:{results:{},patients:[]},values:{},tests:[{code:'A'}],excluded:new Set(),denied:new Set(),messages:[],persisted:0,consumed:0,
+const c={resultSessionMode:()=>c.order&&['Processed','Restored'].includes(c.order.testStates[c.currentResultLabel]?.resultStatus)?'verify':'entry',Date,window:{},currentResultLab:'1',currentResultLabel:'Test',selectedResultDate:new Date(),state:{results:{},patients:[]},values:{},tests:[{code:'A'}],excluded:new Set(),denied:new Set(),messages:[],persisted:0,consumed:0,
 validateResultCommitContext:()=>true,requirePermission:p=>!c.denied.has(p),resultItemStatus:o=>o.testStates.Test?.resultStatus||'All',sampleItemStatus:()=> 'Received',collectResultValues:()=>c.values,bookedItemTests:()=>c.tests,isParameterExcluded:(o,code)=>c.excluded.has(code),contextualResultKey:(label,code)=>label==='Profile'?'Profile::'+code:code,saveResultReportContent:()=>{},lockOrderBookingDate:()=>{},syncOverallSampleStatus:()=>{},syncOrderResolution:()=>{},patientByLab:()=>null,persist:()=>c.persisted++,renderAll:()=>{},toast:m=>c.messages.push(m),consumeCurrentResultSessionItem:()=>c.consumed++};
 c.orderByLab=()=>c.order;
 vm.createContext(c);vm.runInContext(fn('commitCurrentResults')+'\n'+fn('saveResults'),c);

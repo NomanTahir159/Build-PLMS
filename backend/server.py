@@ -422,8 +422,9 @@ class Backend:
             return
         if new is None:self.require(u,s,'orders.delete');return
         booking=set(old)|set(new)-{'testStates'}
-        workflow={'testStates','sample','status','reportedAt','reportStatus','approvedAt','approvedBy','processedAt','receivedAt','collectedAt','sampleHistory','resultStatus','resultHistory','parameterStates','resultEnteredAt','bookingDateLockedAt','bookingDateLockReason','tat'}
+        workflow={'testStates','sample','status','reportedAt','reportStatus','approvedAt','approvedBy','processedAt','receivedAt','collectedAt','sampleHistory','resultStatus','resultHistory','parameterStates','resultEnteredAt','bookingDateLockedAt','bookingDateLockReason','tat','resultReportContent'}
         if any(old.get(k)!=new.get(k) for k in booking-workflow):self.require(u,s,'orders.edit')
+        if old.get('resultReportContent')!=new.get('resultReportContent'):self.require(u,s,'results.enter','results.edit','orders.edit')
         for key in set(old.get('testStates',{}))|set(new.get('testStates',{})):
             a=old.get('testStates',{}).get(key,{});b=new.get('testStates',{}).get(key,{})
             if a==b:continue
@@ -443,7 +444,7 @@ class Backend:
                 else:self.require(u,s,p,'results.authorize' if p=='results.approve' else p)
             if a.get('sampleStatus')==b.get('sampleStatus') and a.get('resultStatus')==b.get('resultStatus'):
                 changed={field for field in set(a)|set(b) if a.get(field)!=b.get(field)}
-                if changed<={'resultEnteredAt','processedAt','submittedAt','restoredAt','resultHistory'}:self.require(u,s,'results.enter','results.edit','results.submit','results.reperform')
+                if changed<={'resultEnteredAt','resultSavedAt','processedAt','submittedAt','restoredAt','resultHistory'}:self.require(u,s,'results.enter','results.edit','results.submit','results.reperform')
                 elif changed<={'sampleStatus'} and a.get('sampleStatus') is None and b.get('sampleStatus')==old.get('sample','Pending'):pass
                 else:self.require(u,s,'orders.edit')
         workflow_permissions=('results.enter','results.edit','results.submit','results.approve','results.authorize','reports.approve','results.reject','results.repeat','results.reperform','samples.receive','samples.reject','samples.resample')

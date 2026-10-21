@@ -1,9 +1,9 @@
 const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert/strict'),{spawnSync}=require('child_process');
 const root=path.resolve(__dirname,'..'),h=fs.readFileSync(path.join(root,'src/System/index.html'),'utf8').replace(/\r\n?/g,'\n');let scripts=0;
-for(const m of h.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)){if(!m[1].includes('src=')&&!m[1].includes('application/json')&&m[2].trim()){new vm.Script(m[2]);scripts++;}}
+for(const m of h.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)){if(!m[1].includes('src=')&&!(/type=["']([^"']+)["']/.test(m[1])&&!/type=["'](?:text\/javascript|application\/javascript|module)["']/.test(m[1]))&&m[2].trim()){new vm.Script(m[2]);scripts++;}}
 for(const file of ['native-backend.js','native-office.js'])new vm.Script(fs.readFileSync(path.join(root,'src/System',file),'utf8').replace(/\r\n?/g,'\n'));
-const seed=JSON.parse(fs.readFileSync(path.join(root,'src/Catalog/catalog.seed.json'),'utf8'));assert.equal(seed.catalog.length,234);assert.equal(new Set(seed.catalog.map(t=>t.code)).size,234);
-for(const id of ['plmsCatalogAutosaveBtn','catalogOpenExcelBtn','catalogImportExcelBtn','plmsSaveUpdatedHtmlBtn','plmsSaveUpdatedHtmlBtn'])assert(!new RegExp('<button[^>]*id="'+id+'"').test(h));
+const seed=JSON.parse(fs.readFileSync(path.join(root,'src/Catalog/catalog.seed.json'),'utf8'));assert.equal(seed.catalog.length,192);assert.equal(new Set(seed.catalog.map(t=>t.code)).size,192);
+for(const id of ['plmsCatalogAutosaveBtn','catalogOpenExcelBtn','catalogImportExcelBtn','plmsSaveUpdatedHtmlBtn'])assert(!new RegExp('<button[^>]*id="'+id+'"').test(h));
 assert(h.includes('plmsBuildEditableDocxFromTemplate'));
 assert(h.includes('src="native-office.js"'));
 assert(!fs.readFileSync(path.join(root,'src/System/native-backend.js'),'utf8').includes('lastFailure=null;apply(data);')); 

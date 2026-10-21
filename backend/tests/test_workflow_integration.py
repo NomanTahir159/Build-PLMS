@@ -54,3 +54,15 @@ class WorkflowIntegrationTests(unittest.TestCase):
   tech=self.account('Technologist');st=self.call('read',tech);data=st['state'];data['orders'][0]['testStates']['B']['resultStatus']='All';data['results']['1']['B::HB']=''
   self.call('commit',tech,state=data,revision=st['revision'])
   stored=self.call('read')['state'];self.assertEqual(stored['orders'][0]['testStates']['B']['resultStatus'],'All');self.assertEqual(stored['results']['1']['B::HB'],'')
+ def test_scoped_result_notes_and_save_timestamp_without_order_edit(self):
+  self.setup_order();tech=self.account('Technologist');st=self.call('read');data=st['state'];o=data['orders'][0]
+  o.update(sample='Received',status='In Progress',testStates={'Hemoglobin':{'sampleStatus':'Received','resultStatus':'All'}})
+  self.call('commit',state=data,revision=st['revision'])
+  st=self.call('read',tech);data=st['state'];o=data['orders'][0]
+  notes={'scopeVersion':2,'items':{'"Hemoglobin"':{'comments':'Clinical correlation advised.','remarks':'Reference interval varies.','instructions':'','advise':'','templateSelections':{},'updatedAt':'2026-10-21T08:00:00Z'}}}
+  o['resultReportContent']=copy.deepcopy(notes);o['testStates']['Hemoglobin']['resultSavedAt']='2026-10-21T08:00:00Z'
+  data['results']['1']['HB']='15.0'
+  self.call('commit',tech,state=data,revision=st['revision'])
+  self.api.db.close();self.api=m.Backend(self.path);auth=self.api.handle({'action':'login','username':'Technologist','password':fixtures.PASSWORD})
+  self.assertEqual(auth['state']['orders'][0]['resultReportContent'],notes)
+  self.assertEqual(auth['state']['results']['1']['HB'],'15.0')

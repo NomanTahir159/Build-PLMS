@@ -35,7 +35,7 @@ class EmbeddedInstallationTests(unittest.TestCase):
                 self.assertEqual(reopened['state']['management'], saved['state']['management'])
                 self.assertEqual(reopened['state']['patients'], [])
                 self.assertEqual(reopened['state']['orders'], [])
-                self.assertEqual(len(reopened['state']['catalog']), 234)
+                self.assertEqual(len(reopened['state']['catalog']), 192)
                 self.assertEqual(len(reopened['state']['management']['employees']), 61)
                 self.assertEqual(json.loads((Path(directory) / 'Catalog/catalog.json').read_text(encoding='utf-8'))['catalog'], saved['state']['catalog'])
             finally:
