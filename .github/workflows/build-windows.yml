@@ -93,4 +93,4 @@ jobs:
             src-tauri/target/release/bundle/nsis/*.exe
             src-tauri/target/release/bundle/nsis/*.exe.sha256
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 3
