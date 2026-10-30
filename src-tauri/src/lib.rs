@@ -10,20 +10,20 @@ use std::sync::atomic::{AtomicBool, Ordering};
 struct StartupState { revealed: AtomicBool }
 
 #[derive(Serialize)]
-struct StoragePaths { root: String, data: String, backups: String, templates: String, catalog: String, logs: String, resources: String, system: String, office: String, exports: String }
+struct StoragePaths { root: String, data: String, backups: String, templates: String, catalog: String, logs: String, resources: String, system: String, exports: String }
 
 fn storage_root(app: &AppHandle) -> Result<PathBuf, String> {
     if cfg!(debug_assertions) { return app.path().app_data_dir().map(|p| p.join("Development")).map_err(|e| e.to_string()); }
-    #[cfg(windows)] { return std::env::var_os("PROGRAMDATA").map(|p| PathBuf::from(p).join("Medicsoft PLMS")).ok_or_else(|| "Windows ProgramData is unavailable".into()); }
+    #[cfg(windows)] { return std::env::var_os("PROGRAMDATA").map(|p| PathBuf::from(p).join("Medicsoft").join("PLMS")).ok_or_else(|| "Windows ProgramData is unavailable".into()); }
     #[cfg(not(windows))] { app.path().app_data_dir().map_err(|e| e.to_string()) }
 }
 fn ensure_storage(app: &AppHandle) -> Result<StoragePaths, String> {
     let root=storage_root(app)?;
-    for folder in ["Root", "Root/EBWebView", "Root/Temp", "Backup", "Catalog", "Database", "Log", "Presets", "Presets/Word"] {
+    for folder in ["Root", "Root/EBWebView", "Root/Temp", "Backup", "Catalog", "Database", "Log", "Presets"] {
         fs::create_dir_all(root.join(folder)).map_err(|e| format!("Could not create {folder}: {e}"))?;
     }
     let installed=app.path().resource_dir().map_err(|e| e.to_string())?;
-    Ok(StoragePaths { root:root.display().to_string(), data:root.join("Database").display().to_string(), backups:root.join("Backup").display().to_string(), templates:root.join("Presets").display().to_string(),catalog:root.join("Catalog").display().to_string(),logs:root.join("Log").display().to_string(),resources:installed.join("Resources").display().to_string(),system:installed.join("System").display().to_string(),office:root.join("Presets/Word").display().to_string(),exports:root.join("Backup").display().to_string() })
+    Ok(StoragePaths { root:root.display().to_string(), data:root.join("Database").display().to_string(), backups:root.join("Backup").display().to_string(), templates:root.join("Presets").display().to_string(),catalog:root.join("Catalog").display().to_string(),logs:root.join("Log").display().to_string(),resources:installed.join("Resources").display().to_string(),system:installed.join("System").display().to_string(),exports:root.join("Backup").display().to_string() })
 }
 
 #[tauri::command]
@@ -78,6 +78,7 @@ pub fn run() {
             app.manage(backend::NativeBackend::start(app.handle()).map_err(std::io::Error::other)?);
             let data=storage_root(app.handle()).map_err(std::io::Error::other)?;
             tauri::WebviewWindowBuilder::from_config(app.handle(), &app.config().app.windows[0])?
+                .disable_drag_drop_handler()
                 .data_directory(data.join("Root/EBWebView"))
                 .build()?;
 

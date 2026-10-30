@@ -1,0 +1,11 @@
+LIBRARY plms-theme
+EXPORTS
+    Apply=_Apply@20
+    Detach=_Detach@4
+    Configure=_Configure@8
+    Layout=_Layout@8
+    BindPage=_BindPage@8
+    BindOption=_BindOption@12
+    SetDataChoice=_SetDataChoice@8
+    RuntimeAvailable=_RuntimeAvailable@4
+    Unlock=_Unlock@4

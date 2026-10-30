@@ -12,8 +12,9 @@ ManifestDPIAwareness PerMonitorV2
 !if "{{compression}}" == "none"
   SetCompress off
 !else
-  ; Set the compression algorithm. We default to LZMA.
-  SetCompressor /SOLID "{{compression}}"
+  ; Compress files independently so the first dialog does not seek/decompress
+  ; through the bundled application and offline WebView2 runtime.
+  SetCompressor "{{compression}}"
 !endif
 
 ; Keep above !include to stay ahead of any plugin command
@@ -73,11 +74,18 @@ ${StrLoc}
 !define UNINSTALLERSIGNCOMMAND "{{uninstaller_sign_cmd}}"
 !define ESTIMATEDSIZE "{{estimated_size}}"
 !define STARTMENUFOLDER "{{start_menu_folder}}"
+!define PLMS_SHORTCUT_ICON "$INSTDIR\Resources\Branding\medicsoft-plms-184a3b174087.ico"
 
 Var PassiveMode
 Var UpdateMode
 Var NoShortcutMode
 Var WixMode
+Var PLMSDesignState
+Var PLMSThemeModule
+Var DeleteAppDataCheckbox
+Var DeleteAppDataCheckboxState
+Var PLMSRepairMode
+Var PLMSRefreshOnly
 Var OldMainBinaryName
 
 Name "${PRODUCTNAME}"
@@ -137,7 +145,7 @@ VIAddVersionKey "ProductVersion" "${VERSION}"
 !define MUI_FONT "Segoe UI"
 !define MUI_CUSTOMFUNCTION_GUIINIT PLMSGuiInit
 !define MUI_CUSTOMFUNCTION_UNGUIINIT un.PLMSGuiInit
-!define MUI_TEXTCOLOR "142337"
+!define MUI_TEXTCOLOR "234534"
 !define MUI_BGCOLOR "FFFFFF"
 !define MUI_HEADERIMAGE_RIGHT
 !define MUI_WELCOMEFINISHPAGE_BITMAP_STRETCH "FitControl"
@@ -184,12 +192,10 @@ VIAddVersionKey "ProductVersion" "${VERSION}"
 !define MUI_LANGDLL_REGISTRY_KEY "${MANUPRODUCTKEY}"
 !define MUI_LANGDLL_REGISTRY_VALUENAME "Installer Language"
 
-; Installer pages, must be ordered as they appear
-; 1. Welcome Page
-!define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
-!define MUI_PAGE_CUSTOMFUNCTION_SHOW PLMSWelcomeLogo
-!insertmacro MUI_PAGE_WELCOME
+!searchreplace PLMS_PAGES_PATH "${SIDEBARIMAGE}" "sidebar.bmp" "PLMSPages.nsh"
+!include "${PLMS_PAGES_PATH}"
 
+; Installer pages, must be ordered as they appear
 ; 2. License Page (if defined)
 !if "${LICENSE}" != ""
   !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
@@ -292,34 +298,39 @@ Function PageReinstall
   ${Else}
     nsDialogs::Create 1018
     Pop $R4
+    System::Call '"$PLUGINSDIR\plms-theme.dll"::BindPage(p $HWNDPARENT,p $R4)'
     ${IfThen} $(^RTL) = 1 ${|} nsDialogs::SetRTL $(^RTL) ${|}
 
-    ${NSD_CreateLabel} 0 0 100% 24u $R1
-    Pop $R1
-
-    ${NSD_CreateRadioButton} 30u 50u -30u 8u $R2
+    ${NSD_CreateRadioButton} 0 0 870 42 "Repair Installation"
     Pop $R2
+    System::Call '"$PLUGINSDIR\plms-theme.dll"::BindOption(p $HWNDPARENT,i 4,p $R2)'
     ${NSD_OnClick} $R2 PageReinstallUpdateSelection
-
-    ${NSD_CreateRadioButton} 30u 70u -30u 8u $R3
+    ${NSD_CreateLabel} 40 42 825 34 "Reinstall application files and keep existing data."
+    Pop $0
+    ${NSD_CreateRadioButton} 0 92 870 42 "Uninstall PLMS"
     Pop $R3
-    ; Disable this radio button if downgrading and downgrades are disabled
-    !if "${ALLOWDOWNGRADES}" == "false"
-      ${IfThen} $R0 = -1 ${|} EnableWindow $R3 0 ${|}
-    !endif
+    System::Call '"$PLUGINSDIR\plms-theme.dll"::BindOption(p $HWNDPARENT,i 5,p $R3)'
     ${NSD_OnClick} $R3 PageReinstallUpdateSelection
-
-    ; Check the first radio button if this the first time
-    ; we enter this page or if the second button wasn't
-    ; selected the last time we were on this page
-    ${If} $ReinstallPageCheck <> 2
-      SendMessage $R2 ${BM_SETCHECK} ${BST_CHECKED} 0
-    ${Else}
-      SendMessage $R3 ${BM_SETCHECK} ${BST_CHECKED} 0
-    ${EndIf}
-
+    ${NSD_CreateLabel} 40 134 825 34 "Remove the application from this computer."
+    Pop $0
+    ${NSD_CreateRadioButton} 0 184 870 42 "Exit Setup"
+    Pop $PLMSExitChoice
+    System::Call '"$PLUGINSDIR\plms-theme.dll"::BindOption(p $HWNDPARENT,i 6,p $PLMSExitChoice)'
+    ${NSD_CreateLabel} 40 226 825 34 "Keep the current installation."
+    Pop $0
+    ${NSD_CreateLabel} 0 290 870 56 "Your patient records and settings are retained by default."
+    Pop $0
+    ${NSD_Check} $R2
+    ; Do not allow a lower version to overwrite a newer installation.
+    !if "${ALLOWDOWNGRADES}" == "false"
+      ${If} $R0 = -1
+        EnableWindow $R2 0
+        ${NSD_Check} $R3
+      ${EndIf}
+    !endif
     ${NSD_SetFocus} $R2
-    Call PLMSPageShow
+    Push 3
+    Call PLMSDesign
     nsDialogs::Show
   ${EndIf}
 FunctionEnd
@@ -332,6 +343,32 @@ Function PageReinstallUpdateSelection
   ${EndIf}
 FunctionEnd
 Function PageLeaveReinstall
+  ${If} $PassiveMode <> 1
+    ${NSD_GetState} $PLMSExitChoice $0
+    ${If} $0 = ${BST_CHECKED}
+      Quit
+    ${EndIf}
+    ${NSD_GetState} $R3 $0
+    ${If} $0 = ${BST_CHECKED}
+      ReadRegStr $1 SHCTX "${UNINSTKEY}" "UninstallString"
+      HideWindow
+      ExecWait '$1' $0
+      ${If} $0 = 0
+        Quit
+      ${EndIf}
+      BringToFront
+      System::Call '"$PLUGINSDIR\plms-theme.dll"::Unlock(p $HWNDPARENT)'
+      Abort
+    ${EndIf}
+  ${EndIf}
+  ; Repair follows the approved direct-to-install flow using the stored folder.
+  StrCpy $PLMSRepairMode 1
+  ; Repair/upgrade retains the existing database and replaces program files.
+  ${If} $WixMode <> 1
+    ${If} $PassiveMode <> 1
+      Return
+    ${EndIf}
+  ${EndIf}
   ${NSD_GetState} $R2 $R1
 
   ; If migrating from Wix, always uninstall
@@ -408,269 +445,71 @@ Function PageLeaveReinstall
   reinst_done:
 FunctionEnd
 
-; 5. Choose install directory page
-!define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
-!define MUI_PAGE_HEADER_TEXT "Choose an installation folder"
-!define MUI_PAGE_HEADER_SUBTEXT "Select where PLMS will be installed."
-!define MUI_PAGE_CUSTOMFUNCTION_SHOW PLMSPageShow
-!insertmacro MUI_PAGE_DIRECTORY
-
-; 6. Start menu shortcut page
+Page custom PLMSOptions PLMSOptionsLeave
 Var AppStartMenuFolder
-!if "${STARTMENUFOLDER}" != ""
-  !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
-  !define MUI_STARTMENUPAGE_DEFAULTFOLDER "${STARTMENUFOLDER}"
-!else
-  !define MUI_PAGE_CUSTOMFUNCTION_PRE Skip
-!endif
-!define MUI_PAGE_CUSTOMFUNCTION_SHOW PLMSPageShow
+; Keep Tauri's start-menu bookkeeping without an extra visible wizard page.
+!define MUI_PAGE_CUSTOMFUNCTION_PRE Skip
+!define MUI_STARTMENUPAGE_DEFAULTFOLDER "${STARTMENUFOLDER}"
 !insertmacro MUI_PAGE_STARTMENU Application $AppStartMenuFolder
-
-; 7. Installation page
-!define MUI_PAGE_HEADER_TEXT "Installing PLMS"
-!define MUI_PAGE_HEADER_SUBTEXT "Setting up the application and its local database worker."
-!define MUI_PAGE_CUSTOMFUNCTION_SHOW PLMSPageShow
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW PLMSInstalling
 !insertmacro MUI_PAGE_INSTFILES
+Page custom PLMSComplete PLMSCompleteLeave
 
-; 8. Finish page
-;
-; Don't auto jump to finish page after installation page,
-; because the installation page has useful info that can be used debug any issues with the installer.
-!define MUI_FINISHPAGE_NOAUTOCLOSE
-; Use show readme button in the finish page as a button create a desktop shortcut
-!define MUI_FINISHPAGE_SHOWREADME
-!define MUI_FINISHPAGE_SHOWREADME_TEXT "$(createDesktop)"
-!define MUI_FINISHPAGE_SHOWREADME_FUNCTION CreateOrUpdateDesktopShortcut
-; Show run app after installation.
-!define MUI_FINISHPAGE_RUN
-!define MUI_FINISHPAGE_RUN_FUNCTION RunMainBinary
-!define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
-!define MUI_PAGE_CUSTOMFUNCTION_SHOW PLMSFinishLogo
-!insertmacro MUI_PAGE_FINISH
+; Shared installer / uninstaller HTML host. Native NSIS content stays hidden.
 
-; Shared installer / uninstaller appearance. No extra image windows are created.
-Var PLMSDark
-Var PLMSText
-Var PLMSBackground
-Var PLMSFieldBackground
-Var PLMSThemeName
-Var PLMSSidebarBitmap
-Var PLMSHeaderBitmap
-
-!searchreplace PLMS_SIDEBAR_DARK "${SIDEBARIMAGE}" "sidebar.bmp" "sidebar-dark.bmp"
-!searchreplace PLMS_HEADER_DARK "${HEADERIMAGE}" "header-light.bmp" "header-dark.bmp"
+!searchreplace PLMS_UI_PATH "${SIDEBARIMAGE}" "sidebar.bmp" "ui\dialog.html"
+!searchreplace PLMS_LOADER_PATH "${SIDEBARIMAGE}" "sidebar.bmp" "theme\build\WebView2Loader.dll"
+!searchreplace PLMS_THEME_DLL "${SIDEBARIMAGE}" "sidebar.bmp" "theme\build\plms-theme.dll"
 
 !macro PLMS_WIZARD_FUNCTIONS PREFIX
 Function ${PREFIX}PLMSGuiInit
   Push $0
   StrCpy $0 $OUTDIR
   InitPluginsDir
-  SetOutPath $PLUGINSDIR
   !if "${PREFIX}" == ""
-    File /oname=plms-sidebar-light.bmp "${SIDEBARIMAGE}"
-    File /oname=plms-sidebar-dark.bmp "${PLMS_SIDEBAR_DARK}"
+    StrCpy $PLMSDesktopState 1
+    StrCpy $PLMSLaunchState 1
   !endif
-  File /oname=plms-header-light.bmp "${HEADERIMAGE}"
-  File /oname=plms-header-dark.bmp "${PLMS_HEADER_DARK}"
+  SetOutPath $PLUGINSDIR
+  File /oname=plms-theme.dll "${PLMS_THEME_DLL}"
+  File /oname=WebView2Loader.dll "${PLMS_LOADER_PATH}"
+  File /oname=plms-dialog.html "${PLMS_UI_PATH}"
+  System::Call 'kernel32::LoadLibraryW(w "$PLUGINSDIR\plms-theme.dll")p.s'
+  Pop $PLMSThemeModule
+  ; The approved HTML UI needs the same WebView2 Runtime as PLMS itself.
+  System::Call '"$PLUGINSDIR\plms-theme.dll"::RuntimeAvailable(w "$PLUGINSDIR")i.r1'
+  ${If} $1 = 0
+    !if "${PREFIX}" == ""
+      !if "${INSTALLWEBVIEW2MODE}" == "offlineInstaller"
+        File /oname=plms-WebView2Runtime.exe "${WEBVIEW2INSTALLERPATH}"
+        ExecWait '$\"$PLUGINSDIR\plms-WebView2Runtime.exe$\" ${WEBVIEW2INSTALLERARGS} /install' $1
+        System::Call '"$PLUGINSDIR\plms-theme.dll"::RuntimeAvailable(w "$PLUGINSDIR")i.r1'
+      !endif
+      ${If} $1 = 0
+        MessageBox MB_ICONSTOP "The Microsoft WebView2 Runtime could not be prepared. Setup cannot display its interface."
+        SetErrorLevel 1
+        Quit
+      ${EndIf}
+    !else
+      MessageBox MB_ICONSTOP "The Microsoft WebView2 Runtime is missing. Restore it to use this interface, or run uninstall.exe /S for unattended removal."
+      SetErrorLevel 1
+      Quit
+    !endif
+  ${EndIf}
   SetOutPath $0
-  Call ${PREFIX}PLMSPageShow
+  System::Call '"$PLUGINSDIR\plms-theme.dll"::Configure(p $HWNDPARENT,w "$PLUGINSDIR\plms-dialog.html")'
   Pop $0
 FunctionEnd
-
-Function ${PREFIX}PLMSThemeTree
-  Exch $0
-  Push $1
-  Push $2
-  ; NSIS compiles color literals; runtime color variables are not supported here.
-  ${If} $PLMSDark == 1
-    SetCtlColors $0 F2F2F2 202020
-  ${Else}
-    SetCtlColors $0 202020 FFFFFF
-  ${EndIf}
-  System::Call 'user32::GetClassNameW(p r0,w .r2,i ${NSIS_MAX_STRLEN})'
-  ${If} $2 == "Edit"
-  ${OrIf} $2 == "RichEdit20W"
-  ${OrIf} $2 == "ListBox"
-  ${OrIf} $2 == "ComboBox"
-    ${If} $PLMSDark == 1
-      SetCtlColors $0 F2F2F2 2D2D2D
-    ${Else}
-      SetCtlColors $0 202020 FFFFFF
-    ${EndIf}
-  ${EndIf}
-  ${If} $2 == "SysListView32"
-    ; These neutral RGB colors have identical BGR/COLORREF representations.
-    SendMessage $0 0x1024 0 "0x$PLMSText"
-    SendMessage $0 0x1026 0 "0x$PLMSFieldBackground"
-    SendMessage $0 0x1001 0 "0x$PLMSFieldBackground"
-  ${EndIf}
-  ${If} $2 == "Button"
-  ${OrIf} $2 == "Edit"
-  ${OrIf} $2 == "ComboBox"
-  ${OrIf} $2 == "SysTreeView32"
-  ${OrIf} $2 == "SysListView32"
-    System::Call 'uxtheme::SetWindowTheme(p r0,w "$PLMSThemeName",p 0)'
-  ${EndIf}
-  System::Call 'user32::GetWindow(p r0,i 5)p.r1'
-  ${While} $1 != 0
-    Push $1
-    Call ${PREFIX}PLMSThemeTree
-    System::Call 'user32::GetWindow(p r1,i 2)p.r1'
-  ${EndWhile}
-  Pop $2
-  Pop $1
-  Pop $0
-FunctionEnd
-
-Function ${PREFIX}PLMSLayoutButtons
-  Push $0
-  Push $1
-  Push $2
-  Push $3
-  Push $4
-  Push $5
-  Push $6
-  Push $7
-  Push $8
-  Push $9
-  ; All geometry is in dialog units, converted with the actual wizard font/DPI.
-  ; Use the native MUI 14-DLU height, also used during page transitions.
-  System::Call '*(i 0,i 0,i 60,i 14)p.r0'
-  System::Call 'user32::MapDialogRect(p $HWNDPARENT,p r0)'
-  System::Call '*$0(i,i,i.r1,i.r2)'
-  System::Free $0
-  System::Call '*(i 0,i 0,i 8,i 12)p.r0'
-  System::Call 'user32::MapDialogRect(p $HWNDPARENT,p r0)'
-  System::Call '*$0(i,i,i.r3,i.r4)'
-  System::Free $0
-  System::Call '*(i,i,i,i)p.r0'
-  System::Call 'user32::GetClientRect(p $HWNDPARENT,p r0)'
-  System::Call '*$0(i,i,i.r5,i.r6)'
-  System::Free $0
-  ; Next/Install/Uninstall/Finish keeps the same slot as the page changes.
-  IntOp $9 $3 * 3
-  IntOp $9 $9 / 2
-  IntOp $7 $5 - $9
-  IntOp $7 $7 - $1
-  IntOp $8 $6 - $4
-  IntOp $8 $8 - $2
-  GetDlgItem $9 $HWNDPARENT 2
-  System::Call 'user32::SetWindowPos(p r9,p 0,i r7,i r8,i r1,i r2,i 0x14)'
-  IntOp $7 $7 - $3
-  IntOp $7 $7 - $1
-  GetDlgItem $9 $HWNDPARENT 1
-  System::Call 'user32::SetWindowPos(p r9,p 0,i r7,i r8,i r1,i r2,i 0x14)'
-  IntOp $7 $7 - $3
-  IntOp $7 $7 - $1
-  GetDlgItem $9 $HWNDPARENT 3
-  System::Call 'user32::SetWindowPos(p r9,p 0,i r7,i r8,i r1,i r2,i 0x14)'
-  Pop $9
-  Pop $8
-  Pop $7
-  Pop $6
-  Pop $5
-  Pop $4
-  Pop $3
-  Pop $2
-  Pop $1
-  Pop $0
-FunctionEnd
-
-; Replace the bitmap in the existing STATIC control, never draw a second logo.
-; Arguments: existing image-control HWND, theme-specific bitmap filename.
-!if "${PREFIX}" == ""
-Function ${PREFIX}PLMSSetSidebar
-  Pop $0
-  Pop $1
-  Push $2
-  Push $3
-  Push $4
-  Push $5
-  System::Call '*(i,i,i,i)p.r2'
-  System::Call 'user32::GetClientRect(p r1,p r2)'
-  System::Call '*$2(i,i,i.r3,i.r4)'
-  System::Free $2
-  System::Call 'user32::LoadImageW(p 0,w r0,i 0,i r3,i r4,i 0x2010)p.r5'
-  ${If} $5 != 0
-    SendMessage $1 0x0172 0 $5
-    ${If} $PLMSSidebarBitmap != 0
-      System::Call 'gdi32::DeleteObject(p $PLMSSidebarBitmap)'
-    ${EndIf}
-    StrCpy $PLMSSidebarBitmap $5
-  ${EndIf}
-  Pop $5
-  Pop $4
-  Pop $3
-  Pop $2
-FunctionEnd
-
-!endif
 
 Function ${PREFIX}PLMSPageShow
-  Push $0
-  Push $1
-  Push $2
-  Push $3
-  Push $4
-  Push $5
-  ; Read Windows app appearance when opening each page. Missing values use light.
-  StrCpy $PLMSDark 0
-  StrCpy $PLMSText "202020"
-  StrCpy $PLMSBackground "FFFFFF"
-  StrCpy $PLMSFieldBackground "FFFFFF"
-  StrCpy $PLMSThemeName "Explorer"
-  ClearErrors
-  ReadRegDWORD $0 HKCU "Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" "AppsUseLightTheme"
-  ${IfNot} ${Errors}
-  ${AndIf} $0 == 0
-    StrCpy $PLMSDark 1
-    StrCpy $PLMSText "F2F2F2"
-    StrCpy $PLMSBackground "202020"
-    StrCpy $PLMSFieldBackground "2D2D2D"
-    StrCpy $PLMSThemeName "DarkMode_Explorer"
-  ${EndIf}
-  System::Call 'dwmapi::DwmSetWindowAttribute(p $HWNDPARENT,i 20,*i $PLMSDark,i 4)i.r0'
-  ${If} $0 != 0
-    System::Call 'dwmapi::DwmSetWindowAttribute(p $HWNDPARENT,i 19,*i $PLMSDark,i 4)'
-  ${EndIf}
-  Push $HWNDPARENT
-  Call ${PREFIX}PLMSThemeTree
-  Call ${PREFIX}PLMSLayoutButtons
-  StrCpy $0 "$PLUGINSDIR\plms-header-light.bmp"
-  ${If} $PLMSDark == 1
-    StrCpy $0 "$PLUGINSDIR\plms-header-dark.bmp"
-  ${EndIf}
-  ${If} $mui.Header.Image != 0
-    System::Call '*(i,i,i,i)p.r1'
-    System::Call 'user32::GetClientRect(p $mui.Header.Image,p r1)'
-    System::Call '*$1(i,i,i.r2,i.r3)'
-    System::Free $1
-    System::Call 'user32::LoadImageW(p 0,w r0,i 0,i r2,i r3,i 0x2010)p.r4'
-    ${If} $4 != 0
-      SendMessage $mui.Header.Image 0x0172 0 $4
-      ${If} $PLMSHeaderBitmap != 0
-        System::Call 'gdi32::DeleteObject(p $PLMSHeaderBitmap)'
-      ${EndIf}
-      StrCpy $PLMSHeaderBitmap $4
-    ${EndIf}
-  ${EndIf}
-  System::Call 'user32::RedrawWindow(p $HWNDPARENT,p 0,p 0,i 0x185)'
-  Pop $5
-  Pop $4
-  Pop $3
-  Pop $2
-  Pop $1
-  Pop $0
+  ; HTML owns all visible controls, fonts, artwork and window chrome.
 FunctionEnd
 
 Function ${PREFIX}PLMSFreeArtwork
-  ${If} $PLMSSidebarBitmap != 0
-    System::Call 'gdi32::DeleteObject(p $PLMSSidebarBitmap)'
-    StrCpy $PLMSSidebarBitmap 0
-  ${EndIf}
-  ${If} $PLMSHeaderBitmap != 0
-    System::Call 'gdi32::DeleteObject(p $PLMSHeaderBitmap)'
-    StrCpy $PLMSHeaderBitmap 0
+  System::Call '"$PLUGINSDIR\plms-theme.dll"::Detach(p $HWNDPARENT)'
+  ${If} $PLMSThemeModule != 0
+    System::Call 'kernel32::FreeLibrary(p $PLMSThemeModule)'
+    StrCpy $PLMSThemeModule 0
   ${EndIf}
 FunctionEnd
 !macroend
@@ -678,34 +517,6 @@ FunctionEnd
 !insertmacro PLMS_WIZARD_FUNCTIONS ""
 !insertmacro PLMS_WIZARD_FUNCTIONS "un."
 
-Function PLMSWelcomeLogo
-  Push $0
-  Push $1
-  Call PLMSPageShow
-  Push $mui.WelcomePage.Image
-  ${If} $PLMSDark == 1
-    Push "$PLUGINSDIR\plms-sidebar-dark.bmp"
-  ${Else}
-    Push "$PLUGINSDIR\plms-sidebar-light.bmp"
-  ${EndIf}
-  Call PLMSSetSidebar
-  Pop $1
-  Pop $0
-FunctionEnd
-Function PLMSFinishLogo
-  Push $0
-  Push $1
-  Call PLMSPageShow
-  Push $mui.FinishPage.Image
-  ${If} $PLMSDark == 1
-    Push "$PLUGINSDIR\plms-sidebar-dark.bmp"
-  ${Else}
-    Push "$PLUGINSDIR\plms-sidebar-light.bmp"
-  ${EndIf}
-  Call PLMSSetSidebar
-  Pop $1
-  Pop $0
-FunctionEnd
 Function .onGUIEnd
   Call PLMSFreeArtwork
 FunctionEnd
@@ -720,55 +531,10 @@ FunctionEnd
 
 ; Uninstaller Pages
 ; 1. Confirm uninstall page
-Var DeleteAppDataCheckbox
-Var DeleteAppDataCheckboxState
-!define /ifndef WS_EX_LAYOUTRTL         0x00400000
-!define MUI_PAGE_CUSTOMFUNCTION_SHOW un.ConfirmShow
-Function un.ConfirmShow ; Add add a `Delete app data` check box
-  ; $1 inner dialog HWND
-  ; $2 window DPI
-  ; $3 style
-  ; $4 x
-  ; $5 y
-  ; $6 width
-  ; $7 height
-  FindWindow $1 "#32770" "" $HWNDPARENT ; Find inner dialog
-  System::Call "user32::GetDpiForWindow(p r1) i .r2"
-  ${If} $(^RTL) = 1
-    StrCpy $3 "${__NSD_CheckBox_EXSTYLE} | ${WS_EX_LAYOUTRTL}"
-    IntOp $4 50 * $2
-  ${Else}
-    StrCpy $3 "${__NSD_CheckBox_EXSTYLE}"
-    IntOp $4 0 * $2
-  ${EndIf}
-  IntOp $5 100 * $2
-  IntOp $6 400 * $2
-  IntOp $7 25 * $2
-  IntOp $4 $4 / 96
-  IntOp $5 $5 / 96
-  IntOp $6 $6 / 96
-  IntOp $7 $7 / 96
-  System::Call 'user32::CreateWindowEx(i r3, w "${__NSD_CheckBox_CLASS}", w "$(deleteAppData)", i ${__NSD_CheckBox_STYLE}, i r4, i r5, i r6, i r7, p r1, i0, i0, i0) i .s'
-  Pop $DeleteAppDataCheckbox
-  SendMessage $HWNDPARENT ${WM_GETFONT} 0 0 $1
-  SendMessage $DeleteAppDataCheckbox ${WM_SETFONT} $1 1
-  Call un.PLMSPageShow
-FunctionEnd
-!define MUI_PAGE_CUSTOMFUNCTION_LEAVE un.ConfirmLeave
-Function un.ConfirmLeave
-  SendMessage $DeleteAppDataCheckbox ${BM_GETCHECK} 0 0 $DeleteAppDataCheckboxState
-FunctionEnd
-!define MUI_PAGE_CUSTOMFUNCTION_PRE un.SkipIfPassive
-!define MUI_PAGE_HEADER_TEXT "Remove PLMS"
-!define MUI_PAGE_HEADER_SUBTEXT "Uninstall the application from this computer."
-!define MUI_UNCONFIRMPAGE_TEXT_TOP "Your records will be kept unless you select Delete app data below."
-!insertmacro MUI_UNPAGE_CONFIRM
-
-; 2. Uninstalling Page
-!define MUI_PAGE_HEADER_TEXT "Removing PLMS"
-!define MUI_PAGE_HEADER_SUBTEXT "Removing the application files and shortcuts."
-!define MUI_PAGE_CUSTOMFUNCTION_SHOW un.PLMSPageShow
+UninstPage custom un.PLMSOptions un.PLMSOptionsLeave
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW un.PLMSInstalling
 !insertmacro MUI_UNPAGE_INSTFILES
+UninstPage custom un.PLMSComplete
 
 ;Languages
 {{#each languages}}
@@ -806,20 +572,29 @@ Function .onInit
     !if "${INSTALLMODE}" == "perMachine"
       ${If} ${RunningX64}
         !if "${ARCH}" == "x64"
-          StrCpy $INSTDIR "$PROGRAMFILES64\${PRODUCTNAME}"
+          StrCpy $INSTDIR "$PROGRAMFILES64\Medicsoft\PLMS"
         !else if "${ARCH}" == "arm64"
-          StrCpy $INSTDIR "$PROGRAMFILES64\${PRODUCTNAME}"
+          StrCpy $INSTDIR "$PROGRAMFILES64\Medicsoft\PLMS"
         !else
-          StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCTNAME}"
+          StrCpy $INSTDIR "$PROGRAMFILES\Medicsoft\PLMS"
         !endif
       ${Else}
-        StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCTNAME}"
+        StrCpy $INSTDIR "$PROGRAMFILES\Medicsoft\PLMS"
       ${EndIf}
     !else if "${INSTALLMODE}" == "currentUser"
-      StrCpy $INSTDIR "$LOCALAPPDATA\${PRODUCTNAME}"
+      StrCpy $INSTDIR "$LOCALAPPDATA\Medicsoft\PLMS"
     !endif
 
     Call RestorePreviousInstallLocation
+    ; Upgrade the old default into the shared parent; retain custom choices.
+    ${If} $INSTDIR == "$PROGRAMFILES64\${PRODUCTNAME}"
+    ${OrIf} $INSTDIR == "$PROGRAMFILES\${PRODUCTNAME}"
+      ${If} ${RunningX64}
+        StrCpy $INSTDIR "$PROGRAMFILES64\Medicsoft\PLMS"
+      ${Else}
+        StrCpy $INSTDIR "$PROGRAMFILES\Medicsoft\PLMS"
+      ${EndIf}
+    ${EndIf}
   ${EndIf}
 
 
@@ -943,8 +718,8 @@ SectionEnd
 Section Install
   ; Keep writable data outside Program Files and retain it during upgrades.
   SetShellVarContext all
-  CreateDirectory "$APPDATA\Medicsoft PLMS"
-  nsExec::ExecToStack '"$SYSDIR\icacls.exe" "$APPDATA\Medicsoft PLMS" /grant *S-1-5-32-545:(OI)(CI)M /T /C'
+  CreateDirectory "$APPDATA\Medicsoft\PLMS"
+  nsExec::ExecToStack '"$SYSDIR\icacls.exe" "$APPDATA\Medicsoft\PLMS" /grant *S-1-5-32-545:(OI)(CI)M /T /C'
   Pop $0
   Pop $1
   ${If} $0 != 0
@@ -957,10 +732,19 @@ Section Install
     !insertmacro NSIS_HOOK_PREINSTALL
   !endif
 
+  ; A renamed executable may still be running during an in-place repair.
+  ReadRegStr $OldMainBinaryName SHCTX "${UNINSTKEY}" "MainBinaryName"
+  ${If} $OldMainBinaryName != ""
+  ${AndIf} $OldMainBinaryName != "${MAINBINARYNAME}.exe"
+    !insertmacro CheckIfAppIsRunning "$INSTDIR\$OldMainBinaryName" "${PRODUCTNAME}"
+  ${EndIf}
   !insertmacro CheckIfAppIsRunning "$INSTDIR\${MAINBINARYNAME}.exe" "${PRODUCTNAME}"
 
   ; Copy main executable
   File "${MAINBINARYSRCPATH}"
+
+  ; Remove the retired adapter when upgrading an existing installation.
+  Delete "$INSTDIR\System\native-office.js"
 
   ; Copy resources
   {{#each resources_dirs}}
@@ -1014,7 +798,7 @@ Section Install
 
   ; Registry information for add/remove programs
   WriteRegStr SHCTX "${UNINSTKEY}" "DisplayName" "${PRODUCTNAME}"
-  WriteRegStr SHCTX "${UNINSTKEY}" "DisplayIcon" "$\"$INSTDIR\${MAINBINARYNAME}.exe$\""
+  WriteRegStr SHCTX "${UNINSTKEY}" "DisplayIcon" "$\"${PLMS_SHORTCUT_ICON}$\",0"
   WriteRegStr SHCTX "${UNINSTKEY}" "DisplayVersion" "${VERSION}"
   WriteRegStr SHCTX "${UNINSTKEY}" "Publisher" "${MANUFACTURER}"
   WriteRegStr SHCTX "${UNINSTKEY}" "InstallLocation" "$\"$INSTDIR$\""
@@ -1033,17 +817,22 @@ Section Install
     WriteRegStr SHCTX "${UNINSTKEY}" "HelpLink" "${HOMEPAGE}"
   !endif
 
-  ; Create start menu shortcut
+  ; Repair existing shortcuts on every install/update, even when creation is off.
+  SetOutPath "$INSTDIR"
+  StrCpy $PLMSRefreshOnly 0
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
     Call CreateOrUpdateStartMenuShortcut
   !insertmacro MUI_STARTMENU_WRITE_END
-
-  ; Create desktop shortcut for silent and passive installers
-  ; because finish page will be skipped
-  ${If} $PassiveMode = 1
-  ${OrIf} ${Silent}
+  Call CreateOrUpdateDesktopShortcut
+  !if "${INSTALLMODE}" == "perMachine"
+    ; Older per-user shortcuts may coexist with the new all-users installation.
+    SetShellVarContext current
+    StrCpy $PLMSRefreshOnly 1
+    Call CreateOrUpdateStartMenuShortcut
     Call CreateOrUpdateDesktopShortcut
-  ${EndIf}
+    StrCpy $PLMSRefreshOnly 0
+    SetShellVarContext all
+  !endif
 
   ; Retire the removed account setup helper when upgrading older packages.
   Delete /REBOOTOK "$INSTDIR\backend\plms-account-setup.exe"
@@ -1053,7 +842,8 @@ Section Install
     !insertmacro NSIS_HOOK_POSTINSTALL
   !endif
 
-  ; Auto close this page for passive mode
+  ; Auto-advance successful GUI installs to the approved completion page.
+  SetAutoClose true
   ${If} $PassiveMode = 1
     SetAutoClose true
   ${EndIf}
@@ -1099,6 +889,35 @@ Section Uninstall
   !endif
 
   !insertmacro CheckIfAppIsRunning "$INSTDIR\${MAINBINARYNAME}.exe" "${PRODUCTNAME}"
+
+  ; Explicit data deletion runs before removing the worker. It accepts no path.
+  ; Upgrades and normal uninstall retain both current and legacy PLMS data.
+  ${If} $DeleteAppDataCheckboxState = 1
+  ${AndIf} $UpdateMode <> 1
+    InitPluginsDir
+    ClearErrors
+    CopyFiles /SILENT "$INSTDIR\Root\plms-backend.exe" "$PLUGINSDIR\plms-data-cleanup.exe"
+    IfErrors plms_data_cleanup_failed
+    ; The backend is a console executable for its stdin/stdout API. nsExec
+    ; runs cleanup without allocating a visible console and preserves its exit code.
+    nsExec::ExecToStack '"$PLUGINSDIR\plms-data-cleanup.exe" --delete-app-data'
+    Pop $0
+    Pop $1
+    ${If} $0 == "error"
+      Goto plms_data_cleanup_failed
+    ${EndIf}
+    ${If} $0 == "timeout"
+      Goto plms_data_cleanup_failed
+    ${EndIf}
+    ${If} $0 != 0
+      Goto plms_data_cleanup_failed
+    ${EndIf}
+    Goto plms_data_cleanup_done
+    plms_data_cleanup_failed:
+      StrCpy $DeleteAppDataCheckboxState 0
+      MessageBox MB_ICONEXCLAMATION "PLMS app data could not be fully deleted. Retained data remains available for recovery. LIS and the shared Medicsoft folder are not deletion targets."
+    plms_data_cleanup_done:
+  ${EndIf}
 
   ; Delete the app directory and its content from disk
   ; Copy main executable
@@ -1167,6 +986,19 @@ Section Uninstall
     ${EndIf}
   ${EndIf}
 
+  ${If} $UpdateMode <> 1
+    !insertmacro IsShortcutTarget "$DESKTOP\PLMS.lnk" "$INSTDIR\${MAINBINARYNAME}.exe"
+    Pop $0
+    ${If} $0 = 1
+      Delete "$DESKTOP\PLMS.lnk"
+    ${EndIf}
+    !insertmacro IsShortcutTarget "$SMPROGRAMS\PLMS.lnk" "$INSTDIR\${MAINBINARYNAME}.exe"
+    Pop $0
+    ${If} $0 = 1
+      Delete "$SMPROGRAMS\PLMS.lnk"
+    ${EndIf}
+  ${EndIf}
+
   ; Remove registry information for add/remove programs
   !if "${INSTALLMODE}" == "both"
     DeleteRegKey SHCTX "${UNINSTKEY}"
@@ -1197,22 +1029,16 @@ Section Uninstall
     DeleteRegKey /ifempty HKCU "${MANUPRODUCTKEY}"
     DeleteRegKey /ifempty HKCU "${MANUKEY}"
 
-    SetShellVarContext all
-    RmDir /r "$APPDATA\Medicsoft PLMS"
-    SetShellVarContext current
-    RmDir /r "$APPDATA\${BUNDLEID}"
-    RmDir /r "$LOCALAPPDATA\${BUNDLEID}"
+    ; PLMS-only app data cleanup was handled by the worker above.
+    ; Never remove the shared Medicsoft parent or a LIS sibling.
   ${EndIf}
 
   !ifmacrodef NSIS_HOOK_POSTUNINSTALL
     !insertmacro NSIS_HOOK_POSTUNINSTALL
   !endif
 
-  ; Auto close if passive mode or updating
-  ${If} $PassiveMode = 1
-  ${OrIf} $UpdateMode = 1
-    SetAutoClose true
-  ${EndIf}
+  ; Advance successful removal to the approved completion page.
+  SetAutoClose true
 SectionEnd
 
 Function RestorePreviousInstallLocation
@@ -1245,67 +1071,86 @@ Function un.SkipIfPassive
   ${IfThen} $PassiveMode = 1  ${|} Abort ${|}
 FunctionEnd
 
+!macro PLMS_WRITE_SHORTCUT LINK
+  ; An explicit, content-versioned icon avoids reusing an old executable icon cache.
+  ClearErrors
+  CreateShortcut "${LINK}" "$INSTDIR\${MAINBINARYNAME}.exe" "" "${PLMS_SHORTCUT_ICON}" 0 SW_SHOWNORMAL "" "Medicsoft PLMS"
+  ${IfNot} ${Errors}
+    !insertmacro SetLnkAppUserModelId "${LINK}"
+    ; SHCNE_UPDATEITEM | SHCNF_PATHW | SHCNF_FLUSHNOWAIT: refresh this link only.
+    System::Call 'shell32::SHChangeNotify(i 0x00002000,i 0x00002005,w "${LINK}",p 0)'
+  ${EndIf}
+!macroend
+
+!macro PLMS_REFRESH_OWNED_SHORTCUT LINK
+  !insertmacro IsShortcutTarget "${LINK}" "$INSTDIR\${MAINBINARYNAME}.exe"
+  Pop $0
+  ${If} $0 != 1
+  ${AndIf} $OldMainBinaryName != ""
+    !insertmacro IsShortcutTarget "${LINK}" "$INSTDIR\$OldMainBinaryName"
+    Pop $0
+  ${EndIf}
+  ${If} $0 = 1
+    !insertmacro PLMS_WRITE_SHORTCUT "${LINK}"
+    StrCpy $R0 1
+  ${EndIf}
+!macroend
+
 Function CreateOrUpdateStartMenuShortcut
-  ; We used to use product name as MAINBINARYNAME
-  ; migrate old shortcuts to target the new MAINBINARYNAME
   StrCpy $R0 0
-
-  !insertmacro IsShortcutTarget "$SMPROGRAMS\$AppStartMenuFolder\${PRODUCTNAME}.lnk" "$INSTDIR\$OldMainBinaryName"
-  Pop $0
-  ${If} $0 = 1
-    !insertmacro SetShortcutTarget "$SMPROGRAMS\$AppStartMenuFolder\${PRODUCTNAME}.lnk" "$INSTDIR\${MAINBINARYNAME}.exe"
-    StrCpy $R0 1
-  ${EndIf}
-
-  !insertmacro IsShortcutTarget "$SMPROGRAMS\${PRODUCTNAME}.lnk" "$INSTDIR\$OldMainBinaryName"
-  Pop $0
-  ${If} $0 = 1
-    !insertmacro SetShortcutTarget "$SMPROGRAMS\${PRODUCTNAME}.lnk" "$INSTDIR\${MAINBINARYNAME}.exe"
-    StrCpy $R0 1
-  ${EndIf}
-
+  !insertmacro PLMS_REFRESH_OWNED_SHORTCUT "$SMPROGRAMS\$AppStartMenuFolder\${PRODUCTNAME}.lnk"
+  !insertmacro PLMS_REFRESH_OWNED_SHORTCUT "$SMPROGRAMS\${PRODUCTNAME}.lnk"
+  !insertmacro PLMS_REFRESH_OWNED_SHORTCUT "$SMPROGRAMS\PLMS.lnk"
   ${If} $R0 = 1
     Return
   ${EndIf}
-
-  ; Skip creating shortcut if in update mode or no shortcut mode
-  ; but always create if migrating from wix
+  ${If} $PLMSRefreshOnly = 1
+    Return
+  ${EndIf}
   ${If} $WixMode = 0
     ${If} $UpdateMode = 1
     ${OrIf} $NoShortcutMode = 1
       Return
     ${EndIf}
   ${EndIf}
-
   !if "${STARTMENUFOLDER}" != ""
+    ; Do not replace a same-named shortcut belonging to a different application.
+    ${If} ${FileExists} "$SMPROGRAMS\$AppStartMenuFolder\${PRODUCTNAME}.lnk"
+      Return
+    ${EndIf}
     CreateDirectory "$SMPROGRAMS\$AppStartMenuFolder"
-    CreateShortcut "$SMPROGRAMS\$AppStartMenuFolder\${PRODUCTNAME}.lnk" "$INSTDIR\${MAINBINARYNAME}.exe"
-    !insertmacro SetLnkAppUserModelId "$SMPROGRAMS\$AppStartMenuFolder\${PRODUCTNAME}.lnk"
+    !insertmacro PLMS_WRITE_SHORTCUT "$SMPROGRAMS\$AppStartMenuFolder\${PRODUCTNAME}.lnk"
   !else
-    CreateShortcut "$SMPROGRAMS\${PRODUCTNAME}.lnk" "$INSTDIR\${MAINBINARYNAME}.exe"
-    !insertmacro SetLnkAppUserModelId "$SMPROGRAMS\${PRODUCTNAME}.lnk"
+    ${If} ${FileExists} "$SMPROGRAMS\${PRODUCTNAME}.lnk"
+      Return
+    ${EndIf}
+    !insertmacro PLMS_WRITE_SHORTCUT "$SMPROGRAMS\${PRODUCTNAME}.lnk"
   !endif
 FunctionEnd
 
 Function CreateOrUpdateDesktopShortcut
-  ; We used to use product name as MAINBINARYNAME
-  ; migrate old shortcuts to target the new MAINBINARYNAME
-  !insertmacro IsShortcutTarget "$DESKTOP\${PRODUCTNAME}.lnk" "$INSTDIR\$OldMainBinaryName"
-  Pop $0
-  ${If} $0 = 1
-    !insertmacro SetShortcutTarget "$DESKTOP\${PRODUCTNAME}.lnk" "$INSTDIR\${MAINBINARYNAME}.exe"
+  StrCpy $R0 0
+  !insertmacro PLMS_REFRESH_OWNED_SHORTCUT "$DESKTOP\${PRODUCTNAME}.lnk"
+  !insertmacro PLMS_REFRESH_OWNED_SHORTCUT "$DESKTOP\PLMS.lnk"
+  ${If} $R0 = 1
     Return
   ${EndIf}
-
-  ; Skip creating shortcut if in update mode or no shortcut mode
-  ; but always create if migrating from wix
+  ${If} $PLMSRefreshOnly = 1
+    Return
+  ${EndIf}
   ${If} $WixMode = 0
     ${If} $UpdateMode = 1
     ${OrIf} $NoShortcutMode = 1
       Return
     ${EndIf}
   ${EndIf}
-
-  CreateShortcut "$DESKTOP\${PRODUCTNAME}.lnk" "$INSTDIR\${MAINBINARYNAME}.exe"
-  !insertmacro SetLnkAppUserModelId "$DESKTOP\${PRODUCTNAME}.lnk"
+  ${If} $PLMSDesktopState != 1
+  ${AndIf} $PassiveMode != 1
+  ${AndIfNot} ${Silent}
+    Return
+  ${EndIf}
+  ${If} ${FileExists} "$DESKTOP\${PRODUCTNAME}.lnk"
+    Return
+  ${EndIf}
+  !insertmacro PLMS_WRITE_SHORTCUT "$DESKTOP\${PRODUCTNAME}.lnk"
 FunctionEnd

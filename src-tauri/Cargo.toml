@@ -1,6 +1,6 @@
 [package]
 name = "plms_beta"
-version = "1.0.0"
+version = "1.0.13"
 description = "Medicsoft PLMS Desktop"
 authors = ["Medicsoft Corporation"]
 edition = "2021"
