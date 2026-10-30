@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-21-organized-cb6cc4c5d594",
+  "version": "plms-catalog-clean-2026-10-23-192-tests-14-profiles",
   "catalog": [
     {
       "code": "CBC01",
@@ -2571,9 +2571,11 @@
       "name": "Iron",
       "unit": "µg/dL",
       "range": "60 - 160",
-      "profile": "",
+      "profile": "Iron Profile",
       "department": "Routine Chemistry",
-      "profiles": [],
+      "profiles": [
+        "Iron Profile"
+      ],
       "price": 0,
       "active": true,
       "referenceRules": [],
@@ -2598,7 +2600,7 @@
         "auto": true,
         "allowManualOverride": false
       },
-      "updatedAt": "2026-10-13T14:45:35.373Z",
+      "updatedAt": "2026-10-20T22:29:20.478Z",
       "catalogIdentity": "test-mv3zqvwu-7f11lsr9ic",
       "clinicalReferenceRules": [],
       "createdAt": "2026-10-13T14:45:35.373Z"
@@ -2608,9 +2610,11 @@
       "name": "TIBC",
       "unit": "µg/dL",
       "range": "200 - 400",
-      "profile": "",
+      "profile": "Iron Profile",
       "department": "Routine Chemistry",
-      "profiles": [],
+      "profiles": [
+        "Iron Profile"
+      ],
       "price": 0,
       "active": true,
       "referenceRules": [],
@@ -2635,7 +2639,7 @@
         "auto": true,
         "allowManualOverride": false
       },
-      "updatedAt": "2026-10-13T14:45:47.687Z",
+      "updatedAt": "2026-10-20T22:29:20.478Z",
       "catalogIdentity": "test-mv3zqvwu-1p5eccs96wh",
       "clinicalReferenceRules": [],
       "createdAt": "2026-10-13T14:45:47.687Z"
@@ -6219,12 +6223,14 @@
       "code": "SPL14",
       "name": "Ferritin",
       "department": "Special Chemistry",
-      "profile": "",
+      "profile": "Iron Profile",
       "unit": "ng/mL",
       "range": "",
       "price": 0,
       "active": true,
-      "profiles": [],
+      "profiles": [
+        "Iron Profile"
+      ],
       "referenceRules": [
         {
           "id": "requested20261010-33-0",
@@ -6272,7 +6278,7 @@
         "auto": true,
         "allowManualOverride": false
       },
-      "updatedAt": "2026-10-20T06:11:44.160Z",
+      "updatedAt": "2026-10-20T22:29:20.478Z",
       "catalogIdentity": "test-mv3zqvwv-flzgeoe965m",
       "clinicalReferenceRules": [],
       "createdAt": "2026-10-14T21:13:39.719Z"
@@ -7428,13 +7434,13 @@
     "Lipid Profile (FLPs)",
     "Electrolytes (S/E)",
     "Cardiac Profile",
+    "Iron Profile",
     "GTT",
     "Urine C/E, R/E",
     "Stool C/E, R/E",
     "Semen C/E, R/E",
     "Thyroid Profile (T3, T4, TSH)",
-    "Thyroid Profile (FT3, FT4, TSH)",
-    "ESR"
+    "Thyroid Profile (FT3, FT4, TSH)"
   ],
   "profileDepartments": {
     "blood c/e, cbc": "Hematology",
@@ -7449,7 +7455,8 @@
     "renal profile (rfts)": "Routine Chemistry",
     "lipid profile (flps)": "Routine Chemistry",
     "electrolytes (s/e)": "Routine Chemistry",
-    "cardiac profile": "Routine Chemistry"
+    "cardiac profile": "Routine Chemistry",
+    "iron profile": "Multi"
   },
   "profileCodes": {
     "blood c/e, cbc": "P0001",
@@ -7460,12 +7467,12 @@
     "thyroid profile (t3, t4, tsh)": "P0061",
     "thyroid profile (ft3, ft4, tsh)": "P0062",
     "gtt": "P0031",
-    "esr": "P076",
     "liver profile (lfts)": "P0021",
     "renal profile (rfts)": "P0022",
     "lipid profile (flps)": "P0023",
     "electrolytes (s/e)": "P0024",
-    "cardiac profile": "P0025"
+    "cardiac profile": "P0025",
+    "iron profile": "P0026"
   },
   "profileTestOrder": {
     "Blood C/E, CBC": [
@@ -7601,6 +7608,11 @@
       "CE001",
       "CE002",
       "CE003"
+    ],
+    "Iron Profile": [
+      "CH016",
+      "CH017",
+      "SPL14"
     ]
   },
   "profileSections": {
@@ -7852,63 +7864,6 @@
         "resultValueRules": []
       }
     },
-    "Lipid Profile": {
-      "LP005": {
-        "calculationRule": {
-          "mode": "Formula",
-          "type": "Formula",
-          "formula": "[T018] / 5",
-          "decimals": 2,
-          "rounding": "Standard",
-          "auto": true,
-          "allowManualOverride": false,
-          "validity": {
-            "formula": "[T018] / 5",
-            "sources": {
-              "T018": {
-                "min": 0,
-                "maxExclusive": 400
-              }
-            },
-            "units": {
-              "T018": "mg/dL",
-              "T021": "mg/dL"
-            },
-            "resultMin": 0
-          }
-        }
-      }
-    },
-    "Liver Profile": {
-      "LFT09": {
-        "calculationRule": {
-          "mode": "Formula",
-          "type": "Formula",
-          "formula": "[LFT07] - [LFT08]",
-          "decimals": 2,
-          "rounding": "Standard",
-          "auto": true,
-          "allowManualOverride": false,
-          "validity": {
-            "formula": "[C014] - [T015]",
-            "sources": {
-              "C014": {
-                "min": 0
-              },
-              "T015": {
-                "min": 0
-              }
-            },
-            "units": {
-              "C014": "g/dL",
-              "T015": "g/dL",
-              "T016": "g/dL"
-            },
-            "resultMin": 0
-          }
-        }
-      }
-    },
     "GTT": {
       "GTT1H": {
         "unitOverride": "mg/dL",
@@ -8012,19 +7967,19 @@
           "auto": true,
           "allowManualOverride": false,
           "validity": {
-            "formula": "[C014] - [T015]",
+            "formula": "[LFT07] - [LFT08]",
             "sources": {
-              "C014": {
+              "LFT07": {
                 "min": 0
               },
-              "T015": {
+              "LFT08": {
                 "min": 0
               }
             },
             "units": {
-              "C014": "g/dL",
-              "T015": "g/dL",
-              "T016": "g/dL"
+              "LFT07": "g/dL",
+              "LFT08": "g/dL",
+              "LFT09": "g/dL"
             },
             "resultMin": 0
           }
@@ -8036,22 +7991,22 @@
         "calculationRule": {
           "mode": "Formula",
           "type": "Formula",
-          "formula": "[T018] / 5",
+          "formula": "[LP002] / 5",
           "decimals": 2,
           "rounding": "Standard",
           "auto": true,
           "allowManualOverride": false,
           "validity": {
-            "formula": "[T018] / 5",
+            "formula": "[LP002] / 5",
             "sources": {
-              "T018": {
+              "LP002": {
                 "min": 0,
                 "maxExclusive": 400
               }
             },
             "units": {
-              "T018": "mg/dL",
-              "T021": "mg/dL"
+              "LP002": "mg/dL",
+              "LP005": "mg/dL"
             },
             "resultMin": 0
           }
@@ -8068,6 +8023,7 @@
     "renal profile (rfts)": true,
     "lipid profile (flps)": true,
     "electrolytes (s/e)": true,
-    "cardiac profile": true
+    "cardiac profile": true,
+    "iron profile": true
   }
 }

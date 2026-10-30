@@ -1,0 +1,12 @@
+
+#backupRestoreSettingsModal .plms-backup-action-card>button{align-self:flex-start!important}
+#backupRestoreSettingsModal .plms-drive-actions{display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:6px;margin-top:auto!important;padding-top:12px;width:100%;flex-shrink:0}
+#backupRestoreSettingsModal .plms-drive-actions button{margin:0!important}
+html body #backupRestoreSettingsModal #plmsGoogleDriveCard button[hidden]{display:none!important}
+#backupRestoreSettingsModal #plmsGoogleDriveCard{min-width:0}
+#backupRestoreSettingsModal #plmsGoogleDriveCard>div>small{min-height:0!important}
+#backupRestoreSettingsModal #plmsDriveAccount{overflow-wrap:anywhere;min-height:0!important;margin-top:8px!important}
+#backupRestoreSettingsModal #plmsDriveMessage{display:block;font-size:9px;font-weight:400;color:var(--muted);line-height:1.45;margin-top:6px;min-height:0!important}
+html body #backupRestoreSettingsModal #plmsDriveMessage:empty{display:none!important;margin:0!important}
+#backupRestoreSettingsModal #plmsDriveMessage[data-error="true"]{color:var(--danger)}
+#backupRestoreSettingsModal button:focus{outline:none!important}

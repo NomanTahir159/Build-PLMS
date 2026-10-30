@@ -12,7 +12,7 @@
  const ready=raw({action:'status'}).then(d=>(readyData=d,d));ready.catch(()=>{});
  function notice(text){const el=document.getElementById('plmsLoginMessage');if(el)el.textContent=text;}
  function apply(data,render=true){
-  hydrating=true;try{state=data.state;revision=data.revision;memory=JSON.stringify(state);sessionStorage.setItem('PLMS_LOGIN_USER',data.userId);if(render){window.refreshPermissionUI?.();window.renderAll?.();window.applyTheme?.();}}finally{hydrating=false;}
+  let migrated=false;hydrating=true;try{state=data.state;revision=data.revision;migrated=window.plmsMigrateReportLibrary?.()===true;memory=JSON.stringify(state);sessionStorage.setItem('PLMS_LOGIN_USER',data.userId);if(render){window.refreshPermissionUI?.();window.renderAll?.();window.applyTheme?.();}}finally{hydrating=false;}return migrated;
  }
  async function migrateSnapshots(){
   // Transfer old full recovery copies only after the server accepts them; then remove browser copies.
@@ -44,7 +44,7 @@
   void drain();
  };
  async function acceptLogin(response){
-   token=response.token;window.plmsNativeAuth.authenticated=true;queue=[];apply(response);
+   token=response.token;window.plmsNativeAuth.authenticated=true;queue=[];sessionStorage.removeItem('PLMS_LOGGED_OUT');const migrated=apply(response);if(migrated){persist();await window.plmsNativeAuth.flush();}
    try{await migrateSnapshots()}catch(e){window.toast?.('Existing recovery snapshots were retained for migration: '+e.message,'info');}lastActivity=sessionStarted=Date.now();lastPing=0;lastFailure=null;oldSet.call(localStorage,'PLMS_NATIVE_MIGRATION_COMPLETED','1');localStorage.removeItem(key);legacy=null;
    sessionStorage.removeItem('PLMS_LOGGED_OUT');document.documentElement.classList.remove('plms-auth-required');document.documentElement.classList.add('plms-authenticated');
    const u=state.users.find(u=>String(u.id)===response.userId);document.querySelector('.header .user-name').textContent=u?.name||'User';document.querySelector('.header .user-role').textContent=u?.role||'';
