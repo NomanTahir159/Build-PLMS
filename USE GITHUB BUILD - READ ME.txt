@@ -1,0 +1,3 @@
+Your local Windows Application Control policy blocks Rust/Tauri build scripts.
+Use BUILD-ON-GITHUB.md and the included .github\workflows\build-windows.yml.
+GitHub Actions will build the Windows installer on a clean Windows runner.

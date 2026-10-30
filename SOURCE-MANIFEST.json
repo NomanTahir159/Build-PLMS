@@ -1,15 +1,96 @@
 {
-  "base": "PLMS-Grouped-Deduplicated-Report-Notes.html",
-  "base_sha256": "a12a2f6794ccbee56b809a33810c6a58e6d548dfaabbced4bc45c660d7a32aad",
+  "base": "PLMS-Embedded-Trainee-Data-Removed.html",
+  "base_sha256": "b19c25c31e9670d0ef5ce5be1b596eaf8504bd42bd0a00c4acd20d79ebf2743e",
   "catalog_tests": 192,
   "catalog_profiles": 14,
   "employees": 61,
-  "trainees": 9,
+  "trainees": 0,
+  "installer_delivery": "github-releases",
+  "storage_layout_update": {
+    "baseline_commit": "78aae0ca6f1f41e3ec2bbd0437a25dd03200d69a",
+    "program_default": "C:\\Program Files\\Medicsoft\\PLMS",
+    "data_root": "C:\\ProgramData\\Medicsoft\\PLMS",
+    "migration": "SQLite backup API; exclusive publish; retain originals; no overwrite or merge",
+    "LIS": "untouched"
+  },
+  "installer_theme": {
+    "official_logo_sha256": "67043488b6ff4ad06629ed447bf3f6d25d04ed27f43346ddae71258b9357ac30",
+    "header": "#0f4f38",
+    "body": "#fafcfb",
+    "primary_progress": "#188b59",
+    "native_renderer": "Microsoft WebView2; approved HTML/CSS used directly; native NSIS pages hidden",
+    "scope": "app, setup, uninstaller and owned shortcuts",
+    "dialog_logical_pixels": [
+      952,
+      998
+    ],
+    "layout": "seven native NSIS states"
+  },
+  "drag_drop": "Tauri file drop disabled in window config and builder; pointer reorder retained",
   "validation": {
-    "frontend_suites": 15,
-    "backend_tests": 73,
-    "installer_source_checks": 8,
-    "host_scripts": 111,
-    "management_scripts": 31
-  }
+    "backend_tests": 120,
+    "frontend_suites": 25,
+    "host_executable_inline_scripts": 114,
+    "main_and_trainee_inline_scripts": 130,
+    "installer_source_checks": 16,
+    "installer_dom_states": 7,
+    "windows_line_endings": "All frontend suites passed with CRLF simulation",
+    "report_letter_regressions": "AMH grouping and rich letter editing/print regressions passed",
+    "native_startup_simulation": "Full HTML with mocked native transport: authentication, persisted existing-library migration, Files table, menu section controls and backup modal passed",
+    "windows_compilation": "Not performed in this Linux environment; use included Windows GitHub Actions workflow",
+    "live_google_authorization": "Not performed; requires the Windows app and account consent"
+  },
+  "shortcuts": {
+    "icon_sha256": "184a3b1740874bbaa1829b84b5ec96587983f6ab6fd240b9df215eb872a84b76",
+    "resource": "Resources/Branding/medicsoft-plms-184a3b174087.ico",
+    "refresh_existing_on_update": true,
+    "shell_notification": "per-link SHCNE_UPDATEITEM; no global cache reset"
+  },
+  "installer_ui": {
+    "approved_sha256": "cacf986a1b7f0d512871bac77cf615b8828cc9993d1657d5bdaca08ddd6ac661",
+    "document_sha256": "cb3af0308335be136f010321f508fec98ac6dee84f36a825db12f5b70e3eee0e",
+    "sdk": "Microsoft.Web.WebView2 1.0.3485.44",
+    "artwork": "Lucide 1.17.0; official PLMS SVG",
+    "windows_visual_verification": "pending"
+  },
+  "startup_patch": {
+    "change": "Install navigation lock only after host-provided initial HTML loads; retain ready handshake and diagnostics",
+    "evidence": "GitHub job 121559163807: controller/web created but initial HTML navigation failed; document has no app/images",
+    "validation": "16 source checks and 7 HTML interaction states passed; native Windows confirmation pending"
+  },
+  "retired_features": [
+    "Microsoft Office integration",
+    "Microsoft Word integration",
+    "Report Designer"
+  ],
+  "update_date": "2026-10-30",
+  "application_html_sha256": "296fa6d93972765d679c2de6f4a628614ef79f0af78793c6b15d1dd37a67aea9",
+  "google_drive": {
+    "storage": "appDataFolder",
+    "scopes": [
+      "drive.appdata",
+      "openid",
+      "email"
+    ],
+    "oauth": "system browser; desktop loopback; PKCE S256 + state",
+    "token_store": "Windows CurrentUser DPAPI; per Windows user; outside backups",
+    "schedule": "worker daemon while app is open; retry after 5 minutes",
+    "cloud_integrity": "PLMS_BACKUP v3 / SHA-256 / plms-value-v1; upload readback checksum",
+    "local_backup_compatibility": "existing v2 retained",
+    "setup": "Owner-supplied Desktop OAuth JSON included in backend/google-drive-client.json and embedded automatically; no setup selector",
+    "live_google_verification": "Not performed; configuration validated and loading tested; Windows account authorization required",
+    "ui": "Unified Local/Cloud table; five columns with visible actions; shared schedule/retention; immediate Backup Now; connected schedule helper removed",
+    "latest_fixes": "Plain borderless Cancel; unlink icon and Disconnect confirmation action; silent cloud-list refresh with progress retained for real operations"
+  },
+  "latest_ui_base": "PLMS-1.0.13-Collapsible-Main-Menu.html",
+  "version": "1.0.13",
+  "version_policy": "Increment patch for every edited app package; sync installer, Node, Rust and About via scripts/bump-version.cjs",
+  "latest_changes": [
+    "Files main page above Employees; screenshot template names; remove Default Blank",
+    "Zoom layout and scrollbar corrections",
+    "Unify Reports filters; Samples and Results Test/Profile typography, ellipsis and dropdown reselection",
+    "Remove Pending sample filter",
+    "Editable order-linked result date",
+    "Collapsible menu sections with remembered state"
+  ]
 }

@@ -83,6 +83,8 @@ if (-not (Test-Path $bundle)) {
   Fail "Tauri completed but the NSIS installer output folder was not found."
 }
 
+if (Get-Command node -ErrorAction SilentlyContinue) { Run-Native "node" @("scripts/name-installer.cjs") }
+
 $installers = Get-ChildItem $bundle -Filter "*.exe" -File -ErrorAction SilentlyContinue
 if (-not $installers) {
   Fail "The NSIS folder exists but no .exe installer was created."

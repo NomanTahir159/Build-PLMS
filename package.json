@@ -1,7 +1,7 @@
 {
   "name": "medicsoft-plms",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.13",
   "description": "Medicsoft PLMS Windows desktop application",
   "scripts": {
     "tauri": "tauri",
