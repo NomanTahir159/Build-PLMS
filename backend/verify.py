@@ -4,7 +4,9 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-RETIRED = ('backend/account_setup.py', 'backend/tests/test_installer_account.py')
+RETIRED = ('backend/account_setup.py', 'backend/tests/test_installer_account.py',
+           'backend/Word-Sync.ps1', 'backend/tests/test_native_office_management.py',
+           'src/System/native-office.js', 'src/native-office.js')
 
 
 def remove_retired_files(root=ROOT):

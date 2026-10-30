@@ -1,4 +1,5 @@
-import copy, importlib.util, pathlib, tempfile, unittest
+import copy, importlib.util, pathlib, tempfile, unittest, sys
+sys.path.insert(0,str(pathlib.Path(__file__).parents[1]))
 spec=importlib.util.spec_from_file_location('backend',pathlib.Path(__file__).parents[1]/'server.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 PASSWORD='Correct horse battery staple'
 def fixture():

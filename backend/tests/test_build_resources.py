@@ -15,7 +15,7 @@ class ResourceBuildTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name) / 'PLMS project with spaces'
-        for relative in ('backend/server.py','backend/Word-Sync.ps1','backend/management.seed.json'):
+        for relative in ('backend/server.py','backend/storage_migration.py','backend/google_drive.py','backend/management.seed.json'):
             path = self.root / relative
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(b'input')
@@ -74,7 +74,7 @@ class ResourceBuildTests(unittest.TestCase):
     def test_config_hook_and_resources_match(self):
         root = Path(__file__).parents[2]
         config = json.loads((root / 'src-tauri/tauri.conf.json').read_text())
-        self.assertEqual(config['build']['beforeBuildCommand'], 'python backend/build_resources.py')
+        self.assertEqual(config['build']['beforeBuildCommand'], 'python scripts/build_installer_theme.py && python backend/build_resources.py')
         for name, _, _, _ in builder.artifacts(root):
             self.assertIn('../backend/dist/' + name + '.exe', config['bundle']['resources'])
 

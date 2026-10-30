@@ -15,7 +15,7 @@ PYINSTALLER_VERSION = '6.22.3'
 def artifacts(root):
     backend = root / 'backend'
     return [
-        ('plms-backend', '--console', backend / 'server.py', [backend / 'server.py', backend / 'Word-Sync.ps1', backend / 'management.seed.json']),
+        ('plms-backend', '--console', backend / 'server.py', [backend / 'server.py', backend / 'storage_migration.py', backend / 'google_drive.py', backend / 'management.seed.json', *([backend / 'google-drive-client.json'] if (backend / 'google-drive-client.json').exists() else [])]),
     ]
 
 
@@ -58,7 +58,9 @@ def build(root=ROOT):
                        '--workpath', str(root / 'backend' / ('build-' + name)),
                        '--specpath', str(root / 'backend')]
             print(f'Building {name}.exe', flush=True)
-            subprocess.run(command + ['--add-data', str(root / 'backend' / 'Word-Sync.ps1') + os.pathsep + '.', '--add-data', str(root / 'backend' / 'management.seed.json') + os.pathsep + '.', str(source)], cwd=root, check=True)
+            client = root / 'backend' / 'google-drive-client.json'
+            if client.exists():command += ['--add-data', str(client) + os.pathsep + '.']
+            subprocess.run(command + ['--add-data', str(root / 'backend' / 'management.seed.json') + os.pathsep + '.', str(source)], cwd=root, check=True)
         if not valid_executable(output):
             raise RuntimeError(f'Packaging did not produce a valid resource: {output}')
         print(f'Verified resource: {output.name}', flush=True)

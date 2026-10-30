@@ -1,5 +1,6 @@
+from google_drive import GoogleDrive, DriveError, ACTIONS as DRIVE_ACTIONS, decode_backup
 """PLMS private stdin/stdout API. No HTTP listener or browser-selected file paths."""
-import math, datetime, copy, hashlib, hmac, json, os, re, secrets, sqlite3, sys, time, base64, subprocess, zipfile, io
+import math, datetime, copy, hashlib, hmac, json, os, re, secrets, sqlite3, sys, time
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -45,6 +46,22 @@ class SafeReportHTML(HTMLParser):
             if key.lower() in ('href','src','xlink:href','action','formaction'):
                 url=re.sub(r'[\x00-\x20]+','',value or '').lower()
                 if url.startswith(('javascript:','vbscript:')) or (url.startswith('data:') and not re.match(r'data:image/(png|jpeg|webp|gif);base64,',url)):raise ApiError('Unsafe report URL.')
+
+def validate_trainee_letter(value):
+    if value is None:return
+    if not isinstance(value,dict):raise ApiError('Invalid letter settings.')
+    for field in ('title','body'):
+        if not isinstance(value.get(field),str) or len(value[field])>100000:raise ApiError('Invalid letter settings.')
+    rows=value.get('signatories')
+    if not isinstance(rows,list) or len(rows)>1000:raise ApiError('Invalid letter signatories.')
+    for row in rows:
+        if not isinstance(row,dict) or any(not isinstance(row.get(field),str) for field in ('name','lines')) or ('affiliation' in row and not isinstance(row['affiliation'],str)):raise ApiError('Invalid letter signatories.')
+    if 'gapMM' in value:
+        gap=value['gapMM']
+        if isinstance(gap,bool) or not isinstance(gap,(int,float)) or not 0<=gap<=100:raise ApiError('Invalid letter gap.')
+    if 'bodyHtml' in value:
+        if not isinstance(value['bodyHtml'],str) or len(value['bodyHtml'])>100000:raise ApiError('Invalid letter text.')
+        SafeReportHTML().feed(value['bodyHtml'])
 
 def valid_hash(value):
     return isinstance(value,str) and bool(re.fullmatch(r'pbkdf2-sha256\$(600000|[6-9][0-9]{5}|1[0-9]{6}|2000000)\$[0-9a-f]{32}\$[0-9a-f]{64}',value))
@@ -122,72 +139,15 @@ GLOBAL_POLICY = {
  'reportText':'results.edit','resultReportContent':'results.edit','inventoryTransactions':'inventory.adjust_stock'}
 CLIENT_PREFS={'theme','themeMode','accent','accentColor','ui','preferences'}
 
-class WordTemplates:
-    """Managed documents, launched only through authenticated backend actions."""
-    def __init__(self, root):
-        self.root=Path(root);self.workers={};self.session=secrets.token_hex(16)
-    def path(self, ident):
-        if not isinstance(ident,str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,100}',ident):raise ApiError('Invalid template identifier.')
-        return self.root/'Presets'/'Word'/(ident+'.docx')
-    def winword(self):
-        if sys.platform!='win32':raise ApiError('Open in Word requires Microsoft Word desktop on Windows.')
-        import winreg
-        for hive in (winreg.HKEY_CURRENT_USER,winreg.HKEY_LOCAL_MACHINE):
-            for view in (winreg.KEY_WOW64_64KEY,winreg.KEY_WOW64_32KEY):
-                try:
-                    with winreg.OpenKey(hive,r'SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\WINWORD.EXE',0,winreg.KEY_READ|view) as key:
-                        value=winreg.QueryValue(key,None)
-                        if Path(value).is_file():return value
-                except OSError:pass
-        raise ApiError('Microsoft Word desktop is not installed.')
-    def watch(self, ident):
-        previous=self.workers.get(ident)
-        if previous and previous.poll() is None:return
-        temp=self.root/'Temp';temp.mkdir(parents=True,exist_ok=True)
-        (temp/'session.active').write_text(self.session,encoding='utf-8')
-        script=Path(getattr(sys,'_MEIPASS',Path(__file__).parent))/'Word-Sync.ps1'
-        if not script.is_file():raise ApiError('Word synchronization resource is missing.')
-        self.workers[ident]=subprocess.Popen(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',str(script),'-DataRoot',str(self.root),'-TemplateId',ident,'-ParentProcessId',str(os.getpid())],creationflags=0x08000000,stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-    def open(self, ident, encoded):
-        path=self.path(ident);word=self.winword();path.parent.mkdir(parents=True,exist_ok=True)
-        if not path.exists():
-            try:
-                data=base64.b64decode(encoded,validate=True)
-                if len(data)>25*1024*1024:raise ValueError()
-                with zipfile.ZipFile(io.BytesIO(data)) as archive:
-                    if 'word/document.xml' not in archive.namelist():raise ValueError()
-            except Exception:raise ApiError('Invalid Word template document.')
-            temporary=path.with_suffix('.tmp');temporary.write_bytes(data);os.replace(temporary,path)
-        try:
-            self.watch(ident)
-            subprocess.Popen([word,str(path)],stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-        except OSError:raise ApiError('Microsoft Word could not be opened.')
-        return {'opened':True}
-    def updates(self, identifiers):
-        result=[]
-        for ident in identifiers:
-            path=self.path(ident)
-            if not path.exists():continue
-            if sys.platform=='win32':self.watch(ident)
-            snapshot=path.with_suffix('.sync.json')
-            if snapshot.exists():
-                try:
-                    row=json.loads(snapshot.read_text(encoding='utf-8'))
-                    if row.get('id')==ident:result.append(row)
-                except (OSError,ValueError):pass
-        return result
+from storage_migration import migrate_storage, delete_app_data
 
 class Backend:
     def __init__(self, path):
         path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
         self.root=path.parent.parent if path.parent.name in ('Database','data') else path.parent
         self._disk_cache={};self._log_cursor=0
-        for folder in ('Root','Backup','Catalog','Log','Presets','Presets/Word'):(self.root/folder).mkdir(parents=True,exist_ok=True)
-        # Migrate an earlier desktop database without copying a live SQLite WAL unsafely.
-        if path.parent.name=='Database' and not path.exists():
-            legacy=Path(os.environ.get('APPDATA',''))/'pk.org.sgrh.plms'/'data'/'plms.sqlite3'
-            if legacy.is_file():
-                with sqlite3.connect(legacy) as source, sqlite3.connect(path) as target:source.backup(target)
+        for folder in ('Root','Backup','Catalog','Log','Presets'):(self.root/folder).mkdir(parents=True,exist_ok=True)
+        migrate_storage(path)
         log=self.root/'Log'/'activity.jsonl'
         if log.exists():
             with log.open(encoding='utf-8') as f:
@@ -205,7 +165,6 @@ class Backend:
         CREATE TABLE IF NOT EXISTS login_failures(login TEXT PRIMARY KEY, failures INTEGER NOT NULL, until REAL NOT NULL);''')
         self.sessions={}
         parent=Path(path).parent
-        self.office=WordTemplates(self.root)
         if self.initialized():
             self.ensure_default_admin()
             if parent.name in ('data','Database'):self.ensure_management()
@@ -570,6 +529,9 @@ class Backend:
                         if str(u.get('role','')).lower()!='administrator': raise ApiError('Only Administrators can change session limits.')
                         session_limits({'settings': after or {}})
                     a=copy.deepcopy(before or {});b=copy.deepcopy(after or {});ab=a.pop('backup',{});bb=b.pop('backup',{})
+                    al=a.pop('traineeLetter',None);bl=b.pop('traineeLetter',None)
+                    if al!=bl:
+                        self.require(u,s,'trainees.view');self.require(u,s,'trainees.edit');validate_trainee_letter(bl)
                     if a!=b:self.require(u,s,'settings.edit')
                     for field in set(ab)|set(bb):
                         if ab.get(field)==bb.get(field):continue
@@ -605,10 +567,14 @@ class Backend:
     def snapshot_store(self,row):
         if not isinstance(row,dict) or not re.fullmatch(r'[a-zA-Z0-9-]{1,100}',str(row.get('id',''))):raise ApiError('Invalid snapshot identifier.')
         payload=row.get('payload',{})
-        if payload.get('format')!='PLMS_BACKUP' or payload.get('version')!=2:raise ApiError('Unsupported snapshot format.')
+        if payload.get('format')!='PLMS_BACKUP' or payload.get('version') not in (2,3):raise ApiError('Unsupported snapshot format.')
         validate_state(payload.get('data'))
-        expected=hashlib.sha256(json.dumps({'data':payload['data'],'auditEvents':payload.get('auditEvents')},ensure_ascii=False,separators=(',',':')).encode()).hexdigest()
-        if payload.get('integrity',{}).get('algorithm')!='SHA-256' or not hmac.compare_digest(str(payload.get('integrity',{}).get('value','')),expected):raise ApiError('Snapshot integrity check failed.')
+        if payload.get('version')==3:
+            try:decode_backup(json.dumps(payload,ensure_ascii=False,separators=(',',':')).encode())
+            except DriveError as error:raise ApiError(str(error)) from None
+        else:
+            expected=hashlib.sha256(json.dumps({'data':payload['data'],'auditEvents':payload.get('auditEvents')},ensure_ascii=False,separators=(',',':')).encode()).hexdigest()
+            if payload.get('integrity',{}).get('algorithm')!='SHA-256' or not hmac.compare_digest(str(payload.get('integrity',{}).get('value','')),expected):raise ApiError('Snapshot integrity check failed.')
         for u in payload['data']['users']:
             if u.get('password') and not valid_hash(u['password']):raise ApiError('Snapshot credential format is invalid.')
         if not isinstance(payload.get('auditEvents'),list):raise ApiError('Invalid snapshot audit.')
@@ -657,10 +623,15 @@ class Backend:
         try:return self.dispatch(r)
         except ApiError:
             action=r.get('action','Unknown') if isinstance(r,dict) else 'Unknown'
-            if action not in ('login','commit','restore','password','read','audit','backup','bootstrap','bypass_login','logout','ping','status','snapshot_delete'):action='Unknown'
+            if action not in ('login','commit','restore','password','read','audit','backup','bootstrap','bypass_login','logout','ping','status','snapshot_delete','snapshots','snapshot_read','snapshot_import','snapshot_create','audit_clear')+DRIVE_ACTIONS:action='Unknown'
             session=self.sessions.get(r.get('token')) if isinstance(r,dict) else None
             self.audit(session['id'] if session else 'Unauthenticated','Denied '+action)
             raise
+    def google_drive(self):
+        if not hasattr(self,'_google_drive'):
+            self._google_drive=GoogleDrive(self.db.execute('PRAGMA database_list').fetchone()[2])
+        return self._google_drive
+
     def dispatch(self,r):
         validate_tree(r);action=r.get('action')
         if action=='status':return {'initialized':self.initialized()}
@@ -668,13 +639,36 @@ class Backend:
         if action=='login':return self.login(r.get('username',''),r.get('password',''))
         if action=='bypass_login':return self.bypass_login()
         session,u,rev,s=self.actor(r.get('token'))
-        if action in ('word_open','word_updates'):
-            self.require(u,s,'reports.manage_templates')
-            identifiers={str(t['id']) for t in s.get('reportTemplates',[]) if t.get('id')}
-            if action=='word_updates':return self.office.updates(identifiers)
-            ident=r.get('id')
-            if ident not in identifiers:raise ApiError('Report template not found.')
-            return self.office.open(ident,r.get('bytes',''))
+        if action in DRIVE_ACTIONS:
+            if str(u.get('role','')).strip().lower()!='administrator':raise ApiError('Only an Administrator can manage Google Drive backups.')
+            self.require(u,s,'backups.view')
+            if action not in ('drive_status','drive_job'):
+                self.require(u,s,('backups.export' if r.get('purpose')=='export' else 'backups.restore') if action=='drive_download' else 'backups.manage')
+            try:
+                cloud=self.google_drive()
+                if action=='drive_status':return cloud.public_status()
+                if action=='drive_job':
+                    result=cloud.job_status(r.get('jobId'))
+                    if result.get('state')=='done' and result.get('kind')=='download':
+                        self.require(u,s,'backups.export' if result['result'].get('purpose')=='export' else 'backups.restore')
+                        validate_state(copy.deepcopy(result['result']['payload']['data']))
+                    return result
+                if action=='drive_configure':result=cloud.configure(r.get('credentials'))
+                elif action=='drive_connect':result=cloud.connect()
+                elif action=='drive_cancel':result=cloud.cancel_connect()
+                elif action=='drive_disconnect':result=cloud.disconnect()
+                elif action=='drive_settings':result=cloud.settings(r.get('enabled'),r.get('hours'),r.get('retain'))
+                elif action=='drive_backup':
+                    self.require(u,s,'backups.export');result=cloud.backup()
+                elif action=='drive_list':result=cloud.list_backups()
+                elif action=='drive_download':result=cloud.download(r.get('fileId'),r.get('purpose','restore'))
+                elif action=='drive_delete':result=cloud.delete_backup(r.get('fileId'))
+                self.audit(u['id'],{'drive_configure':'Google backup connection configured','drive_connect':'Google sign-in started',
+                    'drive_disconnect':'Google backup account disconnected','drive_settings':'Google backup schedule updated',
+                    'drive_backup':'Google backup requested','drive_list':'Google backups listed','drive_download':'Google backup download requested','drive_delete':'Google backup deletion requested',
+                    'drive_cancel':'Google sign-in canceled'}.get(action,'Google backup action'))
+                return result
+            except DriveError as error:raise ApiError(str(error)) from None
         if action=='ping':return {'ok':True}
         if action=='read':return self.response(session,u,rev,s)
         if action=='commit':return self.commit(r['token'],r['state'],r['revision'])
@@ -692,6 +686,24 @@ class Backend:
             if target==str(u['id']):session['credential']=self.db.execute('SELECT hash FROM credentials WHERE id=?',(target,)).fetchone()[0]
             return {'ok':True}
         if action=='audit':self.require(u,s,'audit.view');return {'events':[dict(zip(('id','time','actor','action'),row)) for row in self.db.execute('SELECT id,time,actor,action FROM security_audit ORDER BY id DESC LIMIT 1000')]}
+        if action=='audit_clear':
+            self.require(u,s,'audit.delete')
+            self.db.execute('BEGIN IMMEDIATE')
+            try:
+                removed=self.db.execute('SELECT COUNT(*) FROM security_audit').fetchone()[0]
+                self.db.execute('DELETE FROM security_audit')
+                # Reset the exported mirror too. SQLite may reuse row IDs after
+                # clearing, so its append cursor must restart at zero.
+                log=self.root/'Log'/'activity.jsonl'
+                temporary=log.with_name(log.name+'.tmp')
+                with temporary.open('w',encoding='utf-8') as f:f.flush();os.fsync(f.fileno())
+                os.replace(temporary,log)
+                self._log_cursor=0
+                self.db.execute('COMMIT')
+            except Exception as error:
+                self.db.execute('ROLLBACK')
+                raise ApiError('Activity history could not be cleared.') from error
+            return {'ok':True,'removed':removed}
         if action=='snapshots':
             self.require(u,s,'backups.view');return {'rows':[dict(zip(('id','time','reason','bytes'),x)) for x in self.db.execute('SELECT id,time,reason,bytes FROM snapshots ORDER BY time DESC')]}
         if action=='snapshot_read':
@@ -758,8 +770,13 @@ class Backend:
         raise ApiError('Unknown action.')
 
 def main():
+    if sys.argv[1:]==['--delete-app-data']:
+        delete_app_data()
+        return
     if len(sys.argv)!=2:raise SystemExit('PLMS backend requires its application-data database path.')
     backend=Backend(sys.argv[1])
+    try:backend.google_drive().start_scheduler()
+    except DriveError:pass  # The connection screen reports Windows credential errors.
     while True:
         line=sys.stdin.buffer.readline(MAX_BYTES+1)
         if not line:break
