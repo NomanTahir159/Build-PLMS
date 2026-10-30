@@ -1,5 +1,5 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
-const source=fs.readFileSync(require('path').resolve(__dirname,'../../src/System/index.html'),'utf8');
+const source=fs.readFileSync(require('path').resolve(__dirname,'../../src/System/index.html'),'utf8').replace(/\r\n?/g,'\n');
 const admin={id:'U001',name:'Admin',role:'Administrator',status:'Active',bypassProcessing:true};
 const c={state:{catalog:[{code:'H',name:'HB',department:'Hematology'}],orders:[],patients:[]},user:admin,denied:new Set(),console,Date,Set,window:{},localStorage:{setItem(k,v){this[k]=v}},STORAGE_KEY:'PLMS',audit:[],opened:[],controls:{uRole:{value:'Administrator'},uBypassProcessing:{checked:false},uProcessingBypassRow:{hidden:true}}};
 c.window.plmsReliability={event(...args){c.audit.push(args)}};c.currentPermissionUser=()=>c.user;c.hasPermission=k=>!c.denied.has(k);c.requirePermission=c.hasPermission;c.document={getElementById:id=>c.controls[id]};
@@ -18,7 +18,7 @@ c.user={...admin};c.denied.clear();run('syncProcessingBypassVisibility()');asser
 c.denied.add('users.manage_bypass_processing');assert.equal(run('plmsProcessingBypassAccountValue({bypassProcessing:false},"Administrator")'),false);assert.equal(run('plmsProcessingBypassAccountValue({bypassProcessing:true},"Administrator")'),true);run('syncProcessingBypassVisibility()');assert.equal(c.controls.uBypassProcessing.disabled,true);c.user.role='Developer';run('syncProcessingBypassVisibility()');assert.equal(c.controls.uProcessingBypassRow.hidden,true);
 // Exercise both real order-creation paths, including edits of existing orders.
 Object.assign(c,{plmsPrepareEditedLab:()=>true,existingPatientOrderSeed:null,plmsOrderPatientForForm:lab=>c.patientByLab(lab),plmsSyncPatientRelations:()=>{},validateOrder:()=>true,validateCompleteOrder:()=>true,validateOrderBookingDate:()=>true,selectedOrderProfiles:new Set(['TEST::H']),orderRecordBadge:{dataset:{record:'1'}},selectedOrderDate:new Date(),nextPatientId:()=>1,nextRecordNumber:()=>1,orderTemplateSelectionsPayload:()=>({}),applyOrderBookingDate(){},renderAll(){},closeModal(id){c.opened.push('close:'+id)},navigate(id){c.opened.push(id)},toast(){},updateOrderTestSelection(o,tests){o.tests=tests},catalogHasProfile:()=>false,resetResultEntryTabs(){},resultItemCodes:()=>['H'],openResultSessionItem(){c.opened.push('resultModal')}});
-for(const name of ['fLab','fName','fGender','fAge','fPhone','fLocation','fRecord','fCNIC','fAddress','fComments','fRemarks','fInstructions','fAdvise'])c[name]={value:'Example'};
+for(const name of ['fLab','fName','fGender','fAge','fPhone','fLocation','fRecord','fCNIC','fAddress','fReference','fConsultant','fBloodGroup','fComments','fRemarks','fInstructions','fAdvise'])c[name]={value:'Example'};
 run('let currentResultSession=[],currentResultSessionIndex=0,resultReportWorkspaceLab="";');
 run(fn('persist','esc')+fn('commitOrder','saveOrder')+fn('saveOrder','validateCompleteOrder')+fn('completeOrder','refreshNewOrder'));
 for(const handler of ['saveOrder','completeOrder']){

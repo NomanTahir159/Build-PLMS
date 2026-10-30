@@ -1,5 +1,5 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
-const h=fs.readFileSync(require('path').resolve(__dirname,'../../src/System/index.html'),'utf8');
+const h=fs.readFileSync(require('path').resolve(__dirname,'../../src/System/index.html'),'utf8').replace(/\r\n?/g,'\n');
 function fn(name){const m=h.match(new RegExp('function '+name+'\\([^]*?\\n\\}'));assert(m,name);return m[0];}
 let c,orders,closed,valid,cancel,rendered,marks,handled;
 function reset(mode='verify',crossPatient=false){

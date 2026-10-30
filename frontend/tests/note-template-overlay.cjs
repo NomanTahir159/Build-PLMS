@@ -1,5 +1,5 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
-const h=fs.readFileSync(require('path').resolve(__dirname,'../../src/System/index.html'),'utf8');
+const h=fs.readFileSync(require('path').resolve(__dirname,'../../src/System/index.html'),'utf8').replace(/\r\n?/g,'\n');
 let compiled=0;for(const m of h.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)){const type=m[1].match(/type=["']([^"']+)/)?.[1];if(type&&!/javascript|module/.test(type))continue;if(m[2].trim()){new vm.Script(m[2]);compiled++;}}
 const cls=new Set(),props={};let scrolled=0;
 const panel={getBoundingClientRect:()=>({bottom:700})},search={getBoundingClientRect:()=>({bottom:400})};

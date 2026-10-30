@@ -1,0 +1,10 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
+const html=fs.readFileSync(require('path').join(__dirname,'../../src/System/index.html'),'utf8'),a=html.indexOf(' window.printBlankReportTemplate=function(id){'),b=html.indexOf('\n})();',a);
+(async()=>{
+ let frame,appended=0,printed=0,removed=0,allowed=true;const handlers={};
+ const c={state:{reportTemplates:[{id:'R1',name:'General Report'}]},window:{},requirePermission:()=>allowed,blankReport:()=>'<article>Blank patient details and results</article>',esc:s=>s,toast(){},document:{querySelectorAll:()=>[{textContent:'/* report styles */'}],getElementById:()=>null,createElement:()=>frame={style:{},setAttribute(){},remove(){removed++},contentDocument:{fonts:{ready:Promise.resolve()},images:[]},contentWindow:{addEventListener:(name,fn)=>handlers[name]=fn,requestAnimationFrame:fn=>fn(),focus(){},print(){printed++}}},body:{appendChild(){appended++}}},openModal:()=>{throw Error('Must not open in-app preview')}};
+ vm.createContext(c);vm.runInContext(html.slice(a,b),c);c.window.printBlankReportTemplate('R1');assert.equal(appended,1);assert.equal(printed,0);assert(frame.srcdoc.includes('id="reportPreview"'));assert(frame.srcdoc.includes('printing-lab-report'));await frame.onload();assert.equal(printed,1);handlers.afterprint();assert.equal(removed,1);allowed=false;c.window.printBlankReportTemplate('R1');assert.equal(appended,1);
+ assert(!html.includes('onclick="viewBlankReportTemplate('));assert(html.includes('title="Print" aria-label="Print Template"'));assert(html.includes('template-print-btn'));assert(!html.includes('let templatePreview=null;'));
+ let n=0;for(const m of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)){if(/type=["'](?:application|text)\//.test(m[1]))continue;new vm.Script(m[2]);n++}
+ console.log('PASS: Print action opens native print through prepared iframe, no app preview, fonts/assets readiness, cleanup, print permission, label/icon, '+n+' script syntax checks.');
+})().catch(e=>{console.error(e);process.exitCode=1});

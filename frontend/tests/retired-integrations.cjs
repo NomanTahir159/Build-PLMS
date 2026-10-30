@@ -1,0 +1,10 @@
+const fs=require('fs'),path=require('path'),assert=require('assert/strict');
+const root=path.resolve(__dirname,'../..');
+const html=fs.readFileSync(path.join(root,'src/System/index.html'),'utf8');
+for(const symbol of ['PLMSOfficeBridge','officeImportWordTemplate','officeEditWordTemplate','officeOpenCatalogInExcel','officeIntegrationModal','plmsBuildEditableDocxFromTemplate','plmsValidateDocx','native-office.js','reportDesigner'])assert(!html.includes(symbol),'Retired integration remains: '+symbol);
+for(const match of html.matchAll(/<script\b[^>]*src="([^"]+)"/g))assert(fs.existsSync(path.resolve(root,'src/System',match[1])),'Missing loaded script: '+match[1]);
+for(const symbol of ['function renderAssignedReportTemplate(','function resolveReportTemplateForOrder(','window.printBlankReportTemplate=','function renderTemplateConfiguration(','function saveTemplateDefinition(','function printApprovedReport(','window.plmsPrintEmployeeDutyRoster='])assert(html.includes(symbol),'Working report feature removed: '+symbol);
+const worker=fs.readFileSync(path.join(root,'backend/server.py'),'utf8');
+for(const symbol of ['class WordTemplates','word_open','word_updates','self.office'])assert(!worker.includes(symbol));
+assert(!fs.readFileSync(path.join(root,'backend/build_resources.py'),'utf8').includes('Word-Sync.ps1'));
+console.log('Retired Office/Word/Designer integration absent; loaded scripts and shared report workflows retained.');

@@ -1,5 +1,5 @@
 const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert/strict');
-const root=path.resolve(__dirname,'../..'),html=fs.readFileSync(path.join(root,'src/System/index.html'),'utf8');
+const root=path.resolve(__dirname,'../..'),html=fs.readFileSync(path.join(root,'src/System/index.html'),'utf8').replace(/\r\n?/g,'\n');
 const script=html.match(/<script id="plms-session-limits">([\s\S]*?)<\/script>/)[1];
 (async()=>{
  const controls={sessionIdleLimit:{value:'',dispatchEvent(){}},sessionMaximumLimit:{value:'',dispatchEvent(){}}},listeners={},user={role:'Administrator',status:'Active'},saved=[];
@@ -10,7 +10,7 @@ const script=html.match(/<script id="plms-session-limits">([\s\S]*?)<\/script>/)
  vm.createContext(c);vm.runInContext(script,c);assert.equal(controls.sessionIdleLimit.value,'30');assert.equal(controls.sessionMaximumLimit.value,'8');
  controls.sessionIdleLimit.value='0';controls.sessionMaximumLimit.value='12';await listeners.change();assert.equal(c.state.settings.sessionLimits.idleMinutes,0);assert.equal(c.state.settings.sessionLimits.maxHours,12);assert.equal(saved.length,1);
  assert(controls.sessionIdleLimit.box);const trigger=controls.sessionIdleLimit.box.querySelector('.plms-select-button');trigger.events.click({stopPropagation(){}});assert(controls.sessionIdleLimit.box.classList.contains('open'));assert.equal(controls.sessionIdleLimit.box.querySelector('.plms-select-menu').children.length,7);user.role='Technologist';c.window.plmsSessionLimits.sync();assert(controls.sessionIdleLimit.disabled);controls.sessionIdleLimit.value='5';await listeners.change();assert.equal(c.state.settings.sessionLimits.idleMinutes,0);
- const native=fs.readFileSync(path.join(root,'src/System/native-backend.js'),'utf8'),a=native.indexOf(' function limits(){'),b=native.indexOf(" window.addEventListener('beforeunload'",a);let now=0,interval,logout=0,pings=0;const activity={};
+ const native=fs.readFileSync(path.join(root,'src/System/native-backend.js'),'utf8').replace(/\r\n?/g,'\n'),a=native.indexOf(' function limits(){'),b=native.indexOf(" window.addEventListener('beforeunload'",a);let now=0,interval,logout=0,pings=0;const activity={};
  const n={state:{settings:{}},token:'token',sessionStarted:0,lastActivity:0,lastPing:0,Date:{now:()=>now},document:{addEventListener:(name,fn)=>activity[name]=fn},setInterval:fn=>interval=fn,window:{plmsLogout:()=>logout++,plmsNativeAuth:{call:async()=>{pings++}}}};vm.createContext(n);vm.runInContext(native.slice(a,b),n);
  now=1800000;interval();assert.equal(logout,1);
  logout=0;n.state.settings.sessionLimits={idleMinutes:0,maxHours:0};now=1e12;interval();assert.equal(logout,0);

@@ -1,0 +1,20 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
+const html=fs.readFileSync(require('path').join(__dirname,'../../src/System/index.html'),'utf8');
+const seed=html.match(/<script id="plms-all-department-report-templates">([\s\S]*?)<\/script>/)[1];
+const departments=['Hematology','Routine Chemistry','Special Chemistry','Microbiology','ELISA','Serology','Molecular Biology','Histopathology'];
+const general={id:'RT_STRANDED',code:'R001',name:'General Report',scope:'general',category:'Reports',layoutVersion:'stranded-report-v3',content:'<article data-stranded-report="1">{{PATIENT_NAME}} {{RESULT_ROWS}}</article>',pageSize:'A4',margins:{left:10},office:{word:{linked:true,fileName:'general.docx'}},updatedAt:'2026-10-10'};
+const special=departments.slice(2,5).map((department,i)=>({id:'SPECIAL'+i,scope:'department',target:department,layoutVersion:'special-'+i,content:'Customized '+department,updatedAt:'2026-10-10'}));
+const c={state:{reportTemplates:[general,...special,{id:'CBC',scope:'profile',target:'CBC',layoutVersion:'cbc-report-v1',content:'CBC'}]},structuredClone,Date,ensureTemplateConfigurationState(){},templateAssignmentDepartments:()=>departments,currentAllReportsTemplate:()=>c.state.reportTemplates.find(t=>t.scope==='general'),nextTemplateCode:()=> 'R'+String(c.state.reportTemplates.length+1).padStart(3,'0'),persist(){c.saved++},saved:0,renderTemplateConfiguration(){}};vm.createContext(c);
+const preserved=JSON.stringify(special);vm.runInContext(seed,c);
+assert.equal(c.state.reportTemplates.length,11);assert.equal(c.saved,1);assert.equal(JSON.stringify(special),preserved);
+for(const department of departments){const list=c.state.reportTemplates.filter(t=>t.scope==='department'&&t.target===department);assert.equal(list.length,1,department);if(!special.includes(list[0])){assert.equal(list[0].content,general.content);assert.equal(list[0].layoutVersion,general.layoutVersion);assert.equal(list[0].margins.left,10);assert(!list[0].office);assert.equal(list[0].name,department+' Report')}}
+assert.equal(new Set(c.state.reportTemplates.map(t=>t.id)).size,11);vm.runInContext(seed,c);assert.equal(c.state.reportTemplates.length,11);assert.equal(c.saved,1);
+// Check the actual template resolver: department assignments and CBC specificity.
+const a=html.indexOf('function resolveReportTemplateForOrder(order){'),b=html.indexOf('\nfunction renderAssignedReportTemplate(',a);assert(a>=0&&b>a);
+c.testsForOrder=o=>o.tests.map(name=>({name,department:o.department}));c.templateOrderMatchesDepartment=(o,department)=>o.department===department;c.bookedDirectTest=()=>null;c.catalogHasProfile=()=>false;vm.runInContext(html.slice(a,b),c);
+for(const department of departments){assert.equal(c.resolveReportTemplateForOrder({department,tests:['Demo']}).target,department)}
+assert.equal(c.resolveReportTemplateForOrder({department:'Hematology',tests:['CBC']}).id,'CBC');
+// Existing disabled/custom department templates remain untouched; extra catalog departments get templates.
+c.state={reportTemplates:[structuredClone(general),{id:'CUSTOM',scope:'department',department:'Serology',target:'Serology',enabled:false,content:'My custom template'}]};c.templateAssignmentDepartments=()=>[...departments,'Cytology'];vm.runInContext(seed,c);assert.equal(c.state.reportTemplates.filter(t=>t.scope==='department').length,10);assert.equal(c.state.reportTemplates.find(t=>t.id==='CUSTOM').enabled,false);assert.equal(c.state.reportTemplates.find(t=>t.id==='CUSTOM').content,'My custom template');assert(c.state.reportTemplates.some(t=>t.target==='Cytology'));
+let count=0;for(const m of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)){if(/type=["'](?:application|text)\//.test(m[1]))continue;new vm.Script(m[2]);count++}
+console.log('PASS: all 8 departments covered, 5 missing templates created from General; customized templates/CBC preserved, correct department/profile resolution, unique IDs/codes, extra catalog departments, no repeat seeding; '+count+' scripts syntax checked.');

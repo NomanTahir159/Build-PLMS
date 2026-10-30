@@ -1,5 +1,5 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
-const h=fs.readFileSync(require('path').resolve(__dirname,'../../src/System/index.html'),'utf8');
+const h=fs.readFileSync(require('path').resolve(__dirname,'../../src/System/index.html'),'utf8').replace(/\r\n?/g,'\n');
 const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const controls={};
 for(const id of ['resultCommentsText','resultRemarksText','resultInstructionsText','resultAdviseText'])controls[id]={value:''};
@@ -59,6 +59,8 @@ class Template extends N{
 }
 const document={createElement:tag=>tag==='template'?new Template():new N(tag),createDocumentFragment:()=>new N('#fragment'),body:new N('body')};
 Object.assign(c,{document,state:{catalog:[]},orderedProfileTests:()=>[],getComputedStyle:()=>({marginBottom:'0'})});
+// This suite isolates note placement; signatory rendering is verified separately.
+c.window.plmsApplyReportSignatories=()=>{};c.window.plmsReportSignatoryFooterMM=()=>20.45;
 vm.runInContext(h.slice(h.indexOf('function groupedReportAnnotationSources('),h.indexOf('function layoutPlmsDepartmentReports(')),c);
 vm.runInContext(h.slice(h.indexOf('function layoutPlmsDepartmentReports('),h.indexOf('</script>',h.indexOf('function layoutPlmsDepartmentReports('))),c);
 function table(keys,{profile='',department='Hematology',special='',rows=1}={}){
