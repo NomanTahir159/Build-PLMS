@@ -11,6 +11,8 @@ jobs:
     name: Windows x64 NSIS Installer
     runs-on: windows-2022
     timeout-minutes: 60
+    permissions:
+      contents: write
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -25,23 +27,68 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Verify approved installer HTML and controls
+        shell: pwsh
+        run: |
+          python scripts/build_installer_ui.py
+          if ($LASTEXITCODE -ne 0) { throw "Installer HTML generation failed." }
+          npm install --prefix .installer-test-runtime --ignore-scripts --no-audit --no-fund jsdom@26.1.0
+          if ($LASTEXITCODE -ne 0) { throw "Installer test dependency setup failed." }
+          $env:NODE_PATH = Join-Path $PWD '.installer-test-runtime/node_modules'
+          node tests/installer_ui.cjs
+          if ($LASTEXITCODE -ne 0) { throw "Installer HTML interaction checks failed." }
+
       - name: Verify installer artwork, callbacks and layout
         shell: pwsh
         run: |
           python tests/verify_installer.py
           if ($LASTEXITCODE -ne 0) { throw "Installer source verification failed." }
 
+      - name: Build and test native PLMS installer theme
+        shell: pwsh
+        run: |
+          python scripts/build_installer_theme.py
+          if ($LASTEXITCODE -ne 0) { throw "PLMS native installer theme checks failed." }
+
       - name: Verify frontend workflows and desktop integration
         shell: pwsh
         run: |
+          $env:NODE_PATH = Join-Path $PWD '.installer-test-runtime/node_modules'
           node frontend/verify.cjs
           if ($LASTEXITCODE -ne 0) { throw "Frontend verification failed." }
+
+      - name: Verify frontend with Windows source line endings
+        shell: pwsh
+        run: |
+          $env:NODE_PATH = Join-Path $PWD '.installer-test-runtime/node_modules'
+          node frontend/verify-line-endings.cjs
+          if ($LASTEXITCODE -ne 0) { throw "Windows line-ending verification failed." }
+
+      - name: Verify current report grouping and letter formatting
+        shell: pwsh
+        run: |
+          $env:NODE_PATH = Join-Path $PWD '.installer-test-runtime/node_modules'
+          node tests/report-reference-grouping.cjs
+          if ($LASTEXITCODE -ne 0) { throw "Report reference grouping checks failed." }
+          node tests/letter-formatting.cjs
+          if ($LASTEXITCODE -ne 0) { throw "Letter formatting checks failed." }
 
       - name: Verify database security and workflows
         shell: pwsh
         run: |
           python backend/verify.py
           if ($LASTEXITCODE -ne 0) { throw "Database verification failed." }
+
+      - name: Validate bundled Google Desktop OAuth client
+        shell: pwsh
+        env:
+          PLMS_GOOGLE_CLIENT_JSON: ${{ secrets.PLMS_GOOGLE_CLIENT_JSON }}
+        run: |
+          if (!(Test-Path 'backend/google-drive-client.json') -and $env:PLMS_GOOGLE_CLIENT_JSON) {
+            [System.IO.File]::WriteAllText((Join-Path $PWD 'backend/google-drive-client.json'), $env:PLMS_GOOGLE_CLIENT_JSON, [System.Text.UTF8Encoding]::new($false))
+          }
+          python backend/check_google_client.py
+          if ($LASTEXITCODE -ne 0) { throw "Google Desktop client configuration is missing or invalid." }
 
       - name: Build and verify the PLMS database resource
         shell: pwsh
@@ -77,6 +124,8 @@ jobs:
       - name: Verify installer and create checksum
         shell: pwsh
         run: |
+          node scripts/name-installer.cjs
+          if ($LASTEXITCODE -ne 0) { throw "Installer naming failed." }
           $installers = @(Get-ChildItem "src-tauri/target/release/bundle/nsis/*.exe" -File)
           if ($installers.Count -eq 0) { throw "No NSIS installer was generated." }
           foreach ($installer in $installers) {
@@ -85,12 +134,10 @@ jobs:
             Write-Host "Installer: $($installer.Name)"
           }
 
-      - name: Upload installer
-        uses: actions/upload-artifact@v4
-        with:
-          name: Medicsoft-PLMS-1.0.0-Windows-Installer
-          path: |
-            src-tauri/target/release/bundle/nsis/*.exe
-            src-tauri/target/release/bundle/nsis/*.exe.sha256
-          if-no-files-found: error
-          retention-days: 3
+      - name: Deliver installer through GitHub Releases
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/publish-release.cjs
+          if ($LASTEXITCODE -ne 0) { throw "GitHub Release delivery failed." }
